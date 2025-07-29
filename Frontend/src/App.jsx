@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import PGListing from "./pages/PGListing";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import PGDetails from "./pages/PGDetails";
 
 
 function App() {
@@ -22,6 +23,12 @@ function App() {
             </>
           }
         />
+        <Route path="/pg-details" element={
+           <>
+           <Navbar />
+           <PGDetails />
+           <Footer />  
+           </>} />
       </Routes>
     </Router>
   );

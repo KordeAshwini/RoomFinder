@@ -268,6 +268,9 @@ const Navbar = () => {
           </h1>
 
           <div className="space-x-6 hidden md:flex text-gray-700 font-medium">
+            {/* <ScrollLink to="home" spy={true} smooth={true} duration={500} offset={-80} className="cursor-pointer hover:text-orange-400 transition">
+           Home
+            </ScrollLink> */}
             <Link to="/" className="hover:text-orange-400 transition">
               Home
             </Link>
