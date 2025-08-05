@@ -13,7 +13,7 @@ const OtpVerification = ({ email, onClose, onOtpVerified }) => {
     // Simulate OTP check (always accept for demo)
     if (otp === "123456") {
       alert("OTP Verified!");
-      onOtpVerified(); // Move to ResetPassword
+      onOtpVerified(); 
     } else {
       alert("Invalid OTP. Try 123456 for demo.");
     }

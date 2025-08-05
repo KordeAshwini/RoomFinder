@@ -4,6 +4,8 @@ import PGListing from "./pages/PGListing";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PGDetails from "./pages/PGDetails";
+//import BookingForm from "./pages/BookingForm";
+//import ScheduleVisit from "./pages/ScheduleVisit";
 
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
            <PGDetails />
            <Footer />  
            </>} />
+        
+        
       </Routes>
     </Router>
   );

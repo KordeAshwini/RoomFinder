@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-const ResetPassword = ({ email, onClose, onSuccess }) => {
+const ResetPassword = ({ onClose, onBackToLogin,email }) => {
   const [show, setShow] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -11,14 +11,14 @@ const ResetPassword = ({ email, onClose, onSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
+    if (password == confirmPassword) {
+      alert(`Password Reset Successfully for email: ${email}`);
+      onBackToLogin(); // Close all modals or redirect to login
+    }
+    else{
       alert("Passwords do not match.");
       return;
     }
-
-    // Simulate password reset
-    alert(`Password reset successful for ${email}`);
-    onSuccess(); // Close all modals or redirect to login
   };
 
   return (
