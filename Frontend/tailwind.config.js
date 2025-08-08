@@ -8,7 +8,6 @@ export default {
     plugins: [require("daisyui")],
 
 
-
     extend: {
   animation: {
     'fade-in': 'fadeIn 0.8s ease-out',
@@ -26,5 +25,8 @@ export default {
   },
 }
 
+
+
 };
+
 
