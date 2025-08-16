@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-
 const PropertyDetails = () => {
 
   const [property, setProperty] = useState({

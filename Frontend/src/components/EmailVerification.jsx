@@ -3,26 +3,70 @@ import React, { useEffect, useState } from "react";
 const OtpVerification = ({ email, onClose, onOtpVerified }) => {
   const [show, setShow] = useState(false);
   const [otp, setOtp] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setShow(true), 100);
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate OTP check (always accept for demo)
-    if (otp === "123456") {
-      alert("OTP Verified!");
-      onOtpVerified(); 
-    } else {
-      alert("Invalid OTP. Try 123456 for demo.");
+  // Cooldown timer countdown
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setInterval(() => {
+        setResendCooldown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
     }
+  }, [resendCooldown]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("OTP Verified!");
+        onOtpVerified();
+      } else {
+        alert(data.message || "Invalid OTP");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error verifying OTP");
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("OTP resent successfully!");
+        setResendCooldown(60); // 60 seconds cooldown
+      } else {
+        alert(data.message || "Could not resend OTP");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error resending OTP");
+    }
+    setLoading(false);
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div
-        className={`bg-white rounded-xl shadow-xl transform transition-all duration-300 ease-out p-6 w-full max-w-sm ${
+        className={`bg-white rounded-xl shadow-xl transform transition-all duration-300 ease-out p-6 w-full max-w-sm relative ${
           show ? "scale-100 opacity-100" : "scale-75 opacity-0"
         }`}
       >
@@ -58,6 +102,23 @@ const OtpVerification = ({ email, onClose, onOtpVerified }) => {
             Verify
           </button>
         </form>
+
+        {/* Resend OTP section */}
+        <div className="mt-4 text-center">
+          {resendCooldown > 0 ? (
+            <p className="text-gray-500 text-sm">
+              Resend available in {resendCooldown}s
+            </p>
+          ) : (
+            <button
+              onClick={handleResendOtp}
+              disabled={loading}
+              className="text-orange-500 hover:underline text-sm"
+            >
+              {loading ? "Resending..." : "Resend OTP"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

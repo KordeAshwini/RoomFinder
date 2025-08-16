@@ -1,15 +1,65 @@
 import React, { useEffect, useState } from "react";
 
-const Signin = ({ onClose, onSwitchToSignup, onForgotPassword }) => {
+const Signin = ({ onClose, onSwitchToSignup, onForgotPassword, onLoginSuccess }) => {
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setShow(true), 100);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login submitted");
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
+
+    if (!email || !password) {
+      alert("Please fill in both fields.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      console.log("Logged in user:", data.user.role);
+
+      if (res.ok) {
+        // Save token & role locally
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.user.role);
+        localStorage.setItem("name", data.user.name);
+
+        console.log("Logged in user:", data.user);
+
+        // Notify parent so Navbar/UI updates instantly
+        if (typeof onLoginSuccess === "function") {
+          onLoginSuccess(data.user);
+        }
+
+        // Redirect based on role
+        if (data.user.role === "Tenant") {
+          window.location.href = "/";
+        } else if (data.user.role === "Owner") {
+          window.location.href = "/owner-profile";
+        } else {
+          window.location.href = "/";
+        }
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Something went wrong, please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +88,7 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword }) => {
             <input
               type="email"
               id="email"
+              name="email"
               required
               placeholder="you@example.com"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none"
@@ -51,6 +102,7 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword }) => {
             <input
               type="password"
               id="password"
+              name="password"
               required
               placeholder="••••••••"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none"
@@ -59,9 +111,12 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword }) => {
 
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition"
+            disabled={loading}
+            className={`w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
@@ -71,7 +126,7 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword }) => {
             className="text-orange-500 hover:underline"
             onClick={(e) => {
               e.preventDefault();
-              onForgotPassword();
+              if (onForgotPassword) onForgotPassword();
             }}
           >
             Forgot Password?

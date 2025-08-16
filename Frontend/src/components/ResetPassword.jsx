@@ -1,23 +1,50 @@
 import React, { useEffect, useState } from "react";
 
-const ResetPassword = ({ onClose, onBackToLogin,email }) => {
+const ResetPassword = ({ onClose, onBackToLogin, email}) => {
   const [show, setShow] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setShow(true), 100);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password == confirmPassword) {
-      alert(`Password Reset Successfully for email: ${email}`);
-      onBackToLogin(); // Close all modals or redirect to login
+    if (!password || !confirmPassword) {
+      alert("Please enter both password fields");
+      return;
     }
-    else{
+    if (password !== confirmPassword) {
       alert("Passwords do not match.");
       return;
+    }
+     try {
+      setLoading(true);
+      //console.log("Sending to server:", { email: email, password }); // Debugging
+
+      const response = await fetch("http://localhost:5000/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password }), // Ensure email is included
+      });
+
+      const data = await response.json();
+      console.log("Server Response:", data); // Debugging
+
+      if (response.ok) {
+        alert("Password Reset Successfully");
+        onBackToLogin();
+      } else {
+        alert(data.message || "Failed to reset password");
+      }
+    }  
+    catch (err) {
+      console.error("Reset password error:", err);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,9 +86,14 @@ const ResetPassword = ({ onClose, onBackToLogin,email }) => {
 
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition"
+            disabled={loading}
+            className={`w-full py-2 rounded-lg font-semibold transition ${
+              loading
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
           >
-            Reset Password
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       </div>

@@ -1,38 +1,38 @@
-import React, { useEffect, useState } from "react";
-import OtpVerification from "./OtpVerification"; // 👈 new component
+import React, { useState, useEffect } from "react";
+import ResetPassword from "./ResetPassword";
 
-const ForgotPassword = ({ onClose, onBackToLogin }) => {
+const OtpVerification = ({ email, onClose, onBackToLogin }) => {
   const [show, setShow] = useState(false);
-  const [email, setEmail] = useState("");
-  const [goToOtp, setGoToOtp] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [goToResetPassword, setGoToResetPassword] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setShow(true), 100);
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+      const res = await fetch("http://localhost:5000/api/auth/verify-reset-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, otp }),
       });
 
       const data = await res.json();
       alert(data.message);
 
       if (res.ok) {
-        setGoToOtp(true); // 👈 show OTP verification
+        setGoToResetPassword(true); // 👈 OTP correct → show reset password
       }
     } catch (err) {
       console.error(err);
-      alert("Error sending reset link");
+      alert("Error verifying OTP");
     }
   };
 
-  if (goToOtp) {
-    return <OtpVerification email={email} onClose={onClose} onBackToLogin={onBackToLogin} />;
+  if (goToResetPassword) {
+    return <ResetPassword email={email} onClose={onClose} onBackToLogin={onBackToLogin} />;
   }
 
   return (
@@ -50,21 +50,21 @@ const ForgotPassword = ({ onClose, onBackToLogin }) => {
         </button>
 
         <h2 className="text-2xl font-bold text-center text-orange-500 mb-6">
-          Forgot Password
+          Verify OTP
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleVerifyOtp} className="space-y-4">
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1 block">
-              Enter your registered email
+            <label htmlFor="otp" className="text-sm font-medium text-gray-700 mb-1 block">
+              Enter OTP sent to {email}
             </label>
             <input
-              type="email"
-              id="email"
+              type="text"
+              id="otp"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter OTP"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none"
             />
           </div>
@@ -73,7 +73,7 @@ const ForgotPassword = ({ onClose, onBackToLogin }) => {
             type="submit"
             className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition"
           >
-            Send OTP
+            Verify OTP
           </button>
         </form>
 
@@ -90,4 +90,4 @@ const ForgotPassword = ({ onClose, onBackToLogin }) => {
   );
 };
 
-export default ForgotPassword;
+export default OtpVerification;
