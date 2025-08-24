@@ -51,33 +51,108 @@ async function saveAndSendOtp(email) {
 
 // ------------------ Controllers ------------------ //
 
+// // POST /api/auth/signup
+// exports.signup = async (req, res) => {
+//   try {
+//     const { name, email, phone, role, password } = req.body;
+//     if (!name || !email || !phone || !password) {
+//       return res.status(400).json({ message: "Missing required fields." });
+//     }
+
+//     // Check existing user
+//     if (await User.findOne({ email: email.toLowerCase() })) {
+//       return res.status(409).json({ message: "Email already registered." });
+//     }
+
+//     // Create user with emailVerified false
+//     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+//     const user = new User({ name, email: email.toLowerCase(), phone, role, passwordHash });
+//     await user.save();
+
+//     // Generate & send OTP
+//     await saveAndSendOtp(email.toLowerCase());
+
+//     res.status(201).json({ message: "User created. OTP sent to email.", email: user.email });
+//   } catch (err) {
+//     console.error("signup error:", err);
+//     res.status(500).json({ message: "Server error at signup." });
+//   }
+// };
+
 // POST /api/auth/signup
 exports.signup = async (req, res) => {
   try {
     const { name, email, phone, role, password } = req.body;
-    if (!name || !email || !phone || !password) {
-      return res.status(400).json({ message: "Missing required fields." });
+
+    // 1. Basic empty check
+    if (!name || !email || !phone || !password || !role) {
+      return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Check existing user
+    // 2. Name validation
+    if (name.trim().length < 2) {
+      return res.status(400).json({ message: "Name must be at least 2 characters long." });
+    }
+
+    // 3. Email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
+
+    // 4. Phone validation (10–15 digits, numbers only)
+     const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ message: "Phone number must be 10 digits." });
+    }
+
+    // 5. Role validation
+    const allowedRoles = ["Tenant", "Owner", "Admin"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role selected." });
+    }
+
+    // 6. Password strength check
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long." });
+    }
+    // const strongPassRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
+    // if (!strongPassRegex.test(password)) {
+    //   return res.status(400).json({ 
+    //     message: "Password must include at least one letter and one number." 
+    //   });
+    // }
+
+    // 7. Check if email already exists
     if (await User.findOne({ email: email.toLowerCase() })) {
       return res.status(409).json({ message: "Email already registered." });
     }
 
-    // Create user with emailVerified false
+    // 8. Hash password & save user
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = new User({ name, email: email.toLowerCase(), phone, role, passwordHash });
+    const user = new User({
+      name,
+      email: email.toLowerCase(),
+      phone,
+      role,
+      passwordHash,
+    });
     await user.save();
 
-    // Generate & send OTP
+    // 9. Generate & send OTP
     await saveAndSendOtp(email.toLowerCase());
 
-    res.status(201).json({ message: "User created. OTP sent to email.", email: user.email });
+    res.status(201).json({ 
+      message: "User created successfully. OTP sent to email.", 
+      email: user.email 
+    });
+
   } catch (err) {
-    console.error("signup error:", err);
+    console.error("Signup error:", err);
     res.status(500).json({ message: "Server error at signup." });
   }
 };
+
 
 // POST /api/auth/verify-otp
 exports.verifyOtp = async (req, res) => {
@@ -136,36 +211,96 @@ exports.resendOtp = async (req, res) => {
 };
 
 
+// exports.loginUser = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     //console.log("Login request body:", req.body); // Debug incoming data
+
+//     // Check if user exists
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(400).json({ message: "User not found" });
+
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, user.passwordHash);
+//     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+//     // Generate JWT token
+//     const token = jwt.sign(
+//       { id: user._id, email: user.email,role: user.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     res.json({
+//       message: "Login successful",
+//       token,
+//       user: { id: user._id, name: user.name, email: user.email,role: user.role  }
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
+
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    //console.log("Login request body:", req.body); // Debug incoming data
 
-    // Check if user exists
+    // 1. Check if fields are provided
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    // 2. Validate email format
+    //const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    // 3. Password length validation (optional, before bcrypt compare)
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    }
+
+    // 4. Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-    // Compare password
+    // 5. Compare password
     const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-    // Generate JWT token
+    // 6. Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email,role: user.role },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
+    // 7. Success response
     res.json({
       message: "Login successful",
       token,
-      user: { id: user._id, name: user.name, email: user.email,role: user.role  }
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+      },
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // ------------------ Forgot Password Flow ------------------ //
 
@@ -174,6 +309,12 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ message: "Email required." });
+
+     // 3. Email validation
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format." });
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(404).json({ message: "User not found." });
@@ -227,6 +368,10 @@ exports.resetPassword = async (req, res) => {
     // 1. Validate input
     if (!email || !password) {
       return res.status(400).json({ message: "Missing required fields." });
+    }
+
+     if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters long" });
     }
 
     // 2. Find latest OTP for this email
