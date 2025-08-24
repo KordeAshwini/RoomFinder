@@ -6,7 +6,7 @@ const OwnerProfile = () => {
 
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-const [profileDetails, setProfileDetails] = useState({
+  const [profileDetails, setProfileDetails] = useState({
   name: "Srushti Kange",
   email: "srushti@example.com",
   phone: "9876543210",
@@ -119,10 +119,10 @@ const bookings = [
           <p><strong>Name:</strong> {profileDetails.name}</p>
           <p><strong>Email:</strong> {profileDetails.email}</p>
           <p><strong>Phone:</strong> {profileDetails.phone}</p>
-          <p><strong>Location:</strong> {profileDetails.location}</p>
+          {/* <p><strong>Location:</strong> {profileDetails.location}</p>
           <p><strong>Gender:</strong> {profileDetails.gender}</p>
           <p><strong>Date of Birth:</strong> {profileDetails.dob}</p>
-          <p><strong>ID Proof:</strong> {profileDetails.idProof}</p>
+          <p><strong>ID Proof:</strong> {profileDetails.idProof}</p> */}
         </div>
 
         <div className="flex justify-center mt-6">
@@ -161,7 +161,7 @@ const bookings = [
             placeholder="Phone"
             className="border rounded-lg px-4 py-2"
           />
-          <input
+          {/* <input
             type="text"
             name="location"
             value={editedProfile.location}
@@ -191,7 +191,7 @@ const bookings = [
             onChange={handleInputChange}
             placeholder="ID Proof (e.g. Aadhaar, PAN)"
             className="border rounded-lg px-4 py-2 col-span-2"
-          />
+          /> */}
         </div>
 
         <div className="flex justify-center space-x-4 mt-4">

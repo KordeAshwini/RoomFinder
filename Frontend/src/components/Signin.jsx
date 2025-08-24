@@ -9,58 +9,110 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword, onLoginSuccess })
   }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const password = e.target.password.value.trim();
+  e.preventDefault();
+  const email = e.target.email.value.trim();
+  const password = e.target.password.value.trim();
 
-    if (!email || !password) {
-      alert("Please fill in both fields.");
-      return;
-    }
+  if (!email || !password) {
+    alert("Please fill in both fields.");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
 
-      const data = await res.json();
-      console.log("Logged in user:", data.user.role);
+    const data = await res.json();
 
-      if (res.ok) {
-        // Save token & role locally
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("role", data.user.role);
-        localStorage.setItem("name", data.user.name);
+    if (res.ok) {
+      // Save token & role locally
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.user.role);
+      localStorage.setItem("name", data.user.name);
 
-        console.log("Logged in user:", data.user);
-
-        // Notify parent so Navbar/UI updates instantly
-        if (typeof onLoginSuccess === "function") {
-          onLoginSuccess(data.user);
-        }
-
-        // Redirect based on role
-        if (data.user.role === "Tenant") {
-          window.location.href = "/";
-        } else if (data.user.role === "Owner") {
-          window.location.href = "/owner-profile";
-        } else {
-          window.location.href = "/";
-        }
-      } else {
-        alert(data.message || "Login failed");
+      if (typeof onLoginSuccess === "function") {
+        onLoginSuccess(data.user);
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Something went wrong, please try again.");
-    } finally {
-      setLoading(false);
+
+      // Redirect based on role
+      if (data.user.role === "Tenant") {
+        window.location.href = "/";
+      } else if (data.user.role === "Owner") {
+        window.location.href = "/owner-profile";
+      } else {
+        window.location.href = "/";
+      }
+    } else {
+      // 🚀 Show backend validation messages
+      alert(data.message || "Login failed. Please check your details.");
     }
-  };
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("⚠️ Server not responding. Please try again later.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const email = e.target.email.value.trim();
+  //   const password = e.target.password.value.trim();
+
+  //   if (!email || !password) {
+  //     alert("Please fill in both fields.");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await fetch("http://localhost:5000/api/auth/login", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email, password })
+  //     });
+
+  //     const data = await res.json();
+  //     console.log("Logged in user:", data.user.role);
+
+  //     if (res.ok) {
+  //       // Save token & role locally
+  //       localStorage.setItem("token", data.token);
+  //       localStorage.setItem("role", data.user.role);
+  //       localStorage.setItem("name", data.user.name);
+
+  //       console.log("Logged in user:", data.user);
+
+  //       // Notify parent so Navbar/UI updates instantly
+  //       if (typeof onLoginSuccess === "function") {
+  //         onLoginSuccess(data.user);
+  //       }
+
+  //       // Redirect based on role
+  //       if (data.user.role === "Tenant") {
+  //         window.location.href = "/";
+  //       } else if (data.user.role === "Owner") {
+  //         window.location.href = "/owner-profile";
+  //       } else {
+  //         window.location.href = "/";
+  //       }
+  //     } else {
+  //       alert(data.message || "Login failed");
+  //     }
+  //   } catch (err) {
+  //     console.error("Login error:", err);
+  //     alert("Something went wrong, please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">

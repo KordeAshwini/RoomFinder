@@ -12,13 +12,12 @@ const BookingFormModal = ({ onClose, pgName, gender }) => {
   });
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user")) || {
-      name: "Ashwini Korde",
-      email: "ashwini@example.com",
-      phone: "9876543210",
-    };
-    setUser(userData);
+    const userData = localStorage.getItem("user");
+     if (userData) {
+      setUser(JSON.parse(userData));
+    }
   }, []);
+  //console.log(localStorage.getItem("user"));
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
