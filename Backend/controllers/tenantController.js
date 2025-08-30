@@ -1,5 +1,5 @@
 const TenantProfile = require("../models/TenantProfile");
-const User = require("../models/User");
+// const User = require("../models/User");
 
 exports.saveTenantProfile = async (req, res) => {
   try {

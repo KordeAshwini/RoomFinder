@@ -32,6 +32,7 @@ const Signin = ({ onClose, onSwitchToSignup, onForgotPassword, onLoginSuccess })
     if (res.ok) {
       // Save token & role locally
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.user.role);
       localStorage.setItem("name", data.user.name);
 

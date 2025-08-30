@@ -1,7 +1,9 @@
+
+
 // import React, { useState } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 // import { ChevronLeft } from "lucide-react";
-// import BookingFormModal from "./BookingFormModal"; // Make sure path is correct
+// import BookingFormModal from "./BookingFormModal"; 
 // import ScheduleVisitModal from "./ScheduleVisitModal";
 
 // const PGDetails = () => {
@@ -11,13 +13,46 @@
 //   const [showModal, setShowModal] = useState(false);
 //   const [showVisitModal, setShowVisitModal] = useState(false);
 
+//   // ✅ Get user info (example: from localStorage after login)
+//   const user = JSON.parse(localStorage.getItem("user")); 
+//   // Expected structure: { id, name, role: "Tenant" | "Owner" | "Admin", token }
+
 //   if (!pg) {
 //     return <div className="p-6">No PG details found.</div>;
 //   }
 
+//   const handleBookClick = () => {
+//     if (!user) {
+//       alert("Please log in first to book a PG.");
+//       //navigate("/login");
+//       return;
+//     }
+//     if (user.role !== "Tenant") {
+//       alert("Only Tenants can book a PG.");
+//       return;
+//     }
+//     setShowModal(true);
+//   };
+
+//   const handleVisitClick = () => {
+//     if (!user) {
+//       alert("Please log in first to schedule a visit.");
+//       //navigate("/login");
+//       return;
+//     }
+//     if (user.role !== "Tenant") {
+//       alert("Only Tenants can schedule a visit.");
+//       return;
+//     }
+//     setShowVisitModal(true);
+//   };
+
 //   return (
 //     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 px-6 pt-24 pb-12">
-//       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-orange-600 hover:text-orange-800 mb-4">
+//       <button
+//         onClick={() => navigate(-1)}
+//         className="flex items-center gap-2 text-orange-600 hover:text-orange-800 mb-4"
+//       >
 //         <ChevronLeft /> Back to Listings
 //       </button>
 
@@ -26,7 +61,12 @@
 
 //       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
 //         {[...Array(5)].map((_, i) => (
-//           <img key={i} src={`${pg.image}&sig=${i}`} alt={`PG Image ${i + 1}`} className="rounded-lg object-cover w-full h-48 shadow" />
+//           <img
+//             key={i}
+//             src={`${pg.image}&sig=${i}`}
+//             alt={`PG Image ${i + 1}`}
+//             className="rounded-lg object-cover w-full h-48 shadow"
+//           />
 //         ))}
 //       </div>
 
@@ -45,7 +85,9 @@
 //         <div className="space-y-4">
 //           <div>
 //             <h2 className="font-semibold text-gray-700 mb-1">Overview</h2>
-//             <p className="text-gray-600">{pg.name} is located in {pg.location}. This property is well-maintained, secure, and offers ideal living conditions for students and professionals.</p>
+//             <p className="text-gray-600">
+//               {pg.name} is located in {pg.location}. This property is well-maintained, secure, and offers ideal living conditions for students and professionals.
+//             </p>
 //           </div>
 //           <div>
 //             <h2 className="font-semibold text-gray-700 mb-1">Amenities</h2>
@@ -59,48 +101,48 @@
 //       </div>
 
 //       <div className="mt-8 flex flex-col sm:flex-row gap-4">
+//         {/* Book Now */}
 //         <button
-//           onClick={() => setShowModal(true)}
+//           onClick={handleBookClick}
 //           className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-medium transition"
 //         >
 //           Book Now
 //         </button>
-//          {/* Modal */}
-//       {showModal && (
-//         <BookingFormModal
-//           pgName={pg.name}
-//           gender={pg.gender}
-//           onClose={() => setShowModal(false)}
-//         />
-//       )}
+//         {showModal && (
+//           <BookingFormModal
+//             pgName={pg.name}
+//             gender={pg.gender}
+//             onClose={() => setShowModal(false)}
+//           />
+//         )}
 
+//         {/* Schedule Visit */}
 //         <button
-//         onClick={() => setShowVisitModal(true)}
-//         className="border-2 border-orange-600 text-orange-600 hover:bg-orange-50 px-6 py-3 rounded-xl font-medium transition"
+//           onClick={handleVisitClick}
+//           className="border-2 border-orange-600 text-orange-600 hover:bg-orange-50 px-6 py-3 rounded-xl font-medium transition"
 //         >
 //           Schedule a Visit
 //         </button>
-
-//       {showVisitModal && (
-//         <ScheduleVisitModal
-//           pgName={pg.name}
-//           gender={pg.gender}
-//           onClose={() => setShowVisitModal(false)}
-//         />
-//       )}
-
-//     </div>
+//         {showVisitModal && (
+//           <ScheduleVisitModal
+//             pgName={pg.name}
+//             gender={pg.gender}
+//             onClose={() => setShowVisitModal(false)}
+//           />
+//         )}
+//       </div>
 //     </div>
 //   );
-
 // };
 
 // export default PGDetails;
 
+
+
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import BookingFormModal from "./BookingFormModal"; 
+import BookingFormModal from "./BookingFormModal";
 import ScheduleVisitModal from "./ScheduleVisitModal";
 
 const PGDetails = () => {
@@ -121,7 +163,6 @@ const PGDetails = () => {
   const handleBookClick = () => {
     if (!user) {
       alert("Please log in first to book a PG.");
-      //navigate("/login");
       return;
     }
     if (user.role !== "Tenant") {
@@ -134,7 +175,6 @@ const PGDetails = () => {
   const handleVisitClick = () => {
     if (!user) {
       alert("Please log in first to schedule a visit.");
-      //navigate("/login");
       return;
     }
     if (user.role !== "Tenant") {
@@ -153,50 +193,54 @@ const PGDetails = () => {
         <ChevronLeft /> Back to Listings
       </button>
 
-      <h1 className="text-3xl font-bold text-orange-600 mb-2">{pg.name}</h1>
-      <p className="text-gray-600 text-sm mb-4">{pg.location}</p>
+      <h1 className="text-3xl font-bold text-orange-600 mb-2">
+        {pg.propertyName}
+      </h1>
+      <p className="text-gray-600 text-sm mb-4">{pg.address}, {pg.city}</p>
 
+      {/* Images */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-        {[...Array(5)].map((_, i) => (
-          <img
-            key={i}
-            src={`${pg.image}&sig=${i}`}
-            alt={`PG Image ${i + 1}`}
-            className="rounded-lg object-cover w-full h-48 shadow"
-          />
-        ))}
-      </div>
+  {pg.image ? (
+    <img
+      src={`http://localhost:5000/${pg.image}`}
+      alt="PG Property"
+      className="rounded-lg object-cover w-full h-48 shadow"
+    />
+  ) : (
+    <p className="text-gray-500">No image available</p>
+  )}
+</div>
 
+
+      {/* Details */}
       <div className="grid md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow-lg">
         <div className="space-y-3">
-          <div><strong className="text-gray-700">Property Type:</strong> {pg.accommodation}</div>
-          <div><strong className="text-gray-700">Gender:</strong> {pg.gender}</div>
-          <div><strong className="text-gray-700">Sharing:</strong> 2 / 3 / Single Sharing Available</div>
-          <div><strong className="text-gray-700">Move-in Date:</strong> Immediate</div>
-          <div><strong className="text-gray-700">Minimum Stay:</strong> 3 Months</div>
-          <div><strong className="text-gray-700">Bathroom:</strong> {pg.bathroom}</div>
-          <div><strong className="text-gray-700">Food:</strong> {pg.food}</div>
-          <div><strong className="text-gray-700">Cooling:</strong> {pg.facility}</div>
+          <div><strong className="text-gray-700">Owner Name:</strong> {pg.ownerName}</div>
+          <div><strong className="text-gray-700">Property Type:</strong> {pg.propertyType}</div>
+          <div><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
+          <div><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
+          <div><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
+          <div><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
+          <div><strong className="text-gray-700">PG Rooms:</strong> {pg.pgRooms || "N/A"}</div>
+          <div><strong className="text-gray-700">Phone:</strong> {pg.phone}</div>
+          <div><strong className="text-gray-700">Email:</strong> {pg.email}</div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <h2 className="font-semibold text-gray-700 mb-1">Overview</h2>
-            <p className="text-gray-600">
-              {pg.name} is located in {pg.location}. This property is well-maintained, secure, and offers ideal living conditions for students and professionals.
-            </p>
-          </div>
-          <div>
             <h2 className="font-semibold text-gray-700 mb-1">Amenities</h2>
-            <p className="text-gray-600">{pg.amenities?.join(", ")}</p>
+            <p className="text-gray-600">
+              {pg.amenities ? pg.amenities.toString() : "Not specified"}
+            </p>
           </div>
           <div className="flex justify-between text-lg font-semibold">
             <span className="text-green-700">Rent: ₹{pg.rent}/month</span>
-            <span className="text-blue-700">Deposit: ₹{pg.rent * 2}</span>
+            <span className="text-blue-700">Deposit: ₹{pg.deposit}</span>
           </div>
         </div>
       </div>
 
+      {/* Buttons */}
       <div className="mt-8 flex flex-col sm:flex-row gap-4">
         {/* Book Now */}
         <button
@@ -207,8 +251,8 @@ const PGDetails = () => {
         </button>
         {showModal && (
           <BookingFormModal
-            pgName={pg.name}
-            gender={pg.gender}
+            pgName={pg.propertyName}
+            gender={pg.genderPreference}
             onClose={() => setShowModal(false)}
           />
         )}
@@ -222,8 +266,8 @@ const PGDetails = () => {
         </button>
         {showVisitModal && (
           <ScheduleVisitModal
-            pgName={pg.name}
-            gender={pg.gender}
+            pgName={pg.propertyName}
+            gender={pg.genderPreference}
             onClose={() => setShowVisitModal(false)}
           />
         )}

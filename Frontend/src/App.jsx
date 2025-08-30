@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import PGDetails from "./pages/PGDetails";
 import OwnerProfile from "./pages/OwnerProfile";
 import UserProfile from "./pages/UserProfile";
-import PropertyDetails from "./pages/PropertyDetails";
+import PropertyEditForm from "./pages/PropertyEditForm";
 
 function App() {
   return (
@@ -65,11 +65,11 @@ function App() {
 
         {/* Property Details */}
         <Route
-          path="/property-details/:id"
+          path="/property-edit-form/:id"
           element={
             <>
               <Navbar />
-              <PropertyDetails />
+              <PropertyEditForm />
               <Footer />
             </>
           }

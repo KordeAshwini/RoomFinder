@@ -1,67 +1,59 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 const OwnerProfile = () => {
-  const [activeSection, setActiveSection] = useState('Profile');
-
+  const [activeSection, setActiveSection] = useState("Profile");
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileDetails, setProfileDetails] = useState({
-  name: "Srushti Kange",
-  email: "srushti@example.com",
-  phone: "9876543210",
-  location: "Pune",
-  gender: "Female",
-  dob: "2000-01-01",
-  idProof: "Aadhaar: XXXX-XXXX-XXXX"
-});
+    name: "Srushti Kange",
+    email: "srushti@example.com",
+    phone: "9876543210",
+    location: "Pune",
+    gender: "Female",
+    dob: "2000-01-01",
+    idProof: "Aadhaar: XXXX-XXXX-XXXX",
+  });
 
-const [editedProfile, setEditedProfile] = useState({ ...profileDetails });
+  const [editedProfile, setEditedProfile] = useState({ ...profileDetails });
+  const [bookingTab, setBookingTab] = useState("Pending");
 
-const handleInputChange = (e) => {
-  const { name, value } = e.target;
-  setEditedProfile((prev) => ({ ...prev, [name]: value }));
-};
+  // ---------------- Fetch Owner Properties ----------------
+  const [properties, setProperties] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+const ownerId = user?.id;  // the logged-in user's id
+// console.log("Owner ID:", ownerId);
 
-const handleProfileSave = (e) => {
-  e.preventDefault();
-  setProfileDetails(editedProfile);
-  setIsEditingProfile(false);
-};
+useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  if (!storedUser || storedUser.role !== "Owner") {
+    console.log("No owner user logged in");
+    return;
+  }
 
+  fetch(`http://localhost:5000/api/properties/owner/${storedUser.id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Fetched Data:", data); // ✅ check API response shape
+      const fetchedProperties = data.properties || data; // handle both array or object
+      setProperties(fetchedProperties);
+    })
+    .catch((err) => console.error("Error fetching properties:", err));
+}, []);
 
-  // const bookings = [
-  //   { id: 1, pgName: 'Green PG', status: 'Pending' },
-  //   { id: 2, pgName: 'Urban Stay', status: 'Accepted' },
-  //   { id: 3, pgName: 'City PG', status: 'Confirmed' },
-  //   { id: 4, pgName: 'Metro Hostel', status: 'Accepted' },
-  // ];
-  const [bookingTab, setBookingTab] = useState('Pending');
+  // ---------------------------------------------------------
 
-// Example booking structure (replace with real fetched data)
-const bookings = [
-  {
-    id: 1,
-    pgName: 'Sunrise PG',
-    roomType: 'Single',
-    checkInDate: '2025-08-05',
-    bookingDate: '2025-07-30',
-    status: 'pending', // accepted / confirmed
-    user: {
-      name: 'Srushti Kange',
-      email: 'srushti@example.com',
-      phone: '9876543210'
-    },
-    transactionId: 'TXN123456' // only for confirmed
-  },
-  // Add more entries here
-];
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProfile((prev) => ({ ...prev, [name]: value }));
+  };
 
-
-  const visits = [
-    { id: 1, pgName: 'Green PG', type: 'Boys PG', date: '2025-08-10', time: '4:00 PM', address: 'Kothrud, Pune' },
-    { id: 2, pgName: 'Urban Stay', type: 'Girls PG', date: '2025-08-15', time: '11:00 AM', address: 'Viman Nagar, Pune' },
-  ];
+  const handleProfileSave = (e) => {
+    e.preventDefault();
+    setProfileDetails(editedProfile);
+    setIsEditingProfile(false);
+  };
 
   const fadeAnim = {
     initial: { opacity: 0, y: 10 },
@@ -69,7 +61,89 @@ const bookings = [
     exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
   };
 
-  const [propertyType, setPropertyType] = useState('');
+  // Dummy bookings & visits (keep as you had)
+  const bookings = [
+    {
+      id: 1,
+      pgName: "Sunrise PG",
+      roomType: "Single",
+      checkInDate: "2025-08-05",
+      bookingDate: "2025-07-30",
+      status: "pending",
+      user: { name: "Srushti Kange", email: "srushti@example.com", phone: "9876543210" },
+      transactionId: "TXN123456",
+    },
+  ];
+  const visits = [
+    { id: 1, pgName: "Green PG", type: "Boys PG", date: "2025-08-10", time: "4:00 PM", address: "Kothrud, Pune" },
+    { id: 2, pgName: "Urban Stay", type: "Girls PG", date: "2025-08-15", time: "11:00 AM", address: "Viman Nagar, Pune" },
+  ];
+
+  // ---------------- Upload Property State + Handlers ----------------
+  const [propertyType, setPropertyType] = useState("");
+  const [image, setImage] = useState(null);
+
+  const [formData, setFormData] = useState({
+    ownerId: ownerId || "", // Set ownerId from logged-in user
+    ownerName: "",
+    propertyType: "",
+    flatType: "",
+    sharing: "",
+    city: "",
+    address: "",
+    phone: "",
+    email: "",
+    genderPreference: "",
+    rent: "",
+    deposit: "",
+    pgRooms: "",
+    amenities: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+
+      const data = new FormData();
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
+      if (image) {
+        data.append("image", image);
+      }
+
+      const res = await fetch("http://localhost:5000/api/properties/createproperties", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // ❌ don’t set "Content-Type", fetch + FormData handles it automatically
+        },
+        body: data,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error("Server error:", errData);
+        alert(errData.message || "Failed to upload property");
+        return;
+      }
+
+      const result = await res.json();
+      alert("Property uploaded successfully!");
+      console.log(result);
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Failed to upload property");
+    }
+  };
+
+  // ------------------------------------------------------------------
 
   return (
     <div className="pt-20 px-6 bg-gradient-to-br from-orange-50 to-white min-h-screen">
@@ -77,12 +151,12 @@ const bookings = [
         {/* Sidebar */}
         <aside className="w-60 bg-white rounded-r-xl shadow-xl p-6 h-[calc(100vh-5rem)] sticky top-20 flex flex-col justify-start">
           <ul className="space-y-4 text-orange-600 font-medium">
-            {['Profile', 'My Properties', 'Bookings', 'Visits', 'Upload Property'].map((section) => (
+            {["Profile", "My Properties", "Bookings", "Visits", "Upload Property"].map((section) => (
               <li
                 key={section}
                 onClick={() => setActiveSection(section)}
                 className={`cursor-pointer hover:text-orange-800 transition-all duration-300 rounded-lg px-2 py-1 ${
-                  activeSection === section && 'text-orange-800 font-bold bg-orange-100'
+                  activeSection === section && "text-orange-800 font-bold bg-orange-100"
                 }`}
               >
                 {section}
@@ -94,161 +168,126 @@ const bookings = [
         {/* Main Content */}
         <main className="flex-1 px-8 pb-10">
           <AnimatePresence mode="wait">
-            {/* {activeSection === 'Profile' && (
-              <motion.div {...fadeAnim} key="Profile" className="bg-white p-8 rounded-xl shadow-lg mt-4">
-                <h2 className="text-2xl font-bold mb-4 text-orange-600">Owner Profile</h2>
-                <div className="grid grid-cols-2 gap-4 text-gray-800">
-                  <p><strong>Name:</strong> {profileDetails.name}</p>
-                  <p><strong>Email:</strong> {profileDetails.email}</p>
-                  <p><strong>Phone:</strong> {profileDetails.phone}</p>
-                  <p><strong>Location:</strong> {profileDetails.location}</p>
-                  <p><strong>Gender:</strong>Female</p>
-                </div>
-                <button className="mt-6 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all">
-                  Edit Profile
-                </button>
+            {/* Profile Section */}
+            {activeSection === "Profile" && (
+              <motion.div
+                {...fadeAnim}
+                key="Profile"
+                className="bg-white p-8 rounded-xl shadow-lg mt-4 max-w-2xl mx-auto"
+              >
+                <h2 className="text-2xl font-bold mb-6 text-orange-600 text-center">
+                  Owner Profile
+                </h2>
+
+                {!isEditingProfile ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-4 text-gray-800">
+                      <p>
+                        <strong>Name:</strong> {profileDetails.name}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {profileDetails.email}
+                      </p>
+                      <p>
+                        <strong>Phone:</strong> {profileDetails.phone}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-center mt-6">
+                      <button
+                        onClick={() => setIsEditingProfile(true)}
+                        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
+                      >
+                        Edit Profile
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <form onSubmit={handleProfileSave} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <input
+                        type="text"
+                        name="name"
+                        value={editedProfile.name}
+                        onChange={handleInputChange}
+                        placeholder="Name"
+                        className="border rounded-lg px-4 py-2"
+                      />
+                      <input
+                        type="email"
+                        name="email"
+                        value={editedProfile.email}
+                        onChange={handleInputChange}
+                        placeholder="Email"
+                        className="border rounded-lg px-4 py-2"
+                      />
+                      <input
+                        type="text"
+                        name="phone"
+                        value={editedProfile.phone}
+                        onChange={handleInputChange}
+                        placeholder="Phone"
+                        className="border rounded-lg px-4 py-2"
+                      />
+                    </div>
+
+                    <div className="flex justify-center space-x-4 mt-4">
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingProfile(false)}
+                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
               </motion.div>
-            )} */}
-             {activeSection === 'Profile' && (
-  <motion.div {...fadeAnim} key="Profile" className="bg-white p-8 rounded-xl shadow-lg mt-4 max-w-2xl mx-auto">
-    <h2 className="text-2xl font-bold mb-6 text-orange-600 text-center">Owner Profile</h2>
-
-    {!isEditingProfile ? (
-      <>
-        <div className="grid grid-cols-2 gap-4 text-gray-800">
-          <p><strong>Name:</strong> {profileDetails.name}</p>
-          <p><strong>Email:</strong> {profileDetails.email}</p>
-          <p><strong>Phone:</strong> {profileDetails.phone}</p>
-          {/* <p><strong>Location:</strong> {profileDetails.location}</p>
-          <p><strong>Gender:</strong> {profileDetails.gender}</p>
-          <p><strong>Date of Birth:</strong> {profileDetails.dob}</p>
-          <p><strong>ID Proof:</strong> {profileDetails.idProof}</p> */}
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => setIsEditingProfile(true)}
-            className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
-          >
-            Edit Profile
-          </button>
-        </div>
-      </>
-    ) : (
-      <form onSubmit={handleProfileSave} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="name"
-            value={editedProfile.name}
-            onChange={handleInputChange}
-            placeholder="Name"
-            className="border rounded-lg px-4 py-2"
-          />
-          <input
-            type="email"
-            name="email"
-            value={editedProfile.email}
-            onChange={handleInputChange}
-            placeholder="Email"
-            className="border rounded-lg px-4 py-2"
-          />
-          <input
-            type="text"
-            name="phone"
-            value={editedProfile.phone}
-            onChange={handleInputChange}
-            placeholder="Phone"
-            className="border rounded-lg px-4 py-2"
-          />
-          {/* <input
-            type="text"
-            name="location"
-            value={editedProfile.location}
-            onChange={handleInputChange}
-            placeholder="Location"
-            className="border rounded-lg px-4 py-2"
-          />
-          <input
-            type="text"
-            name="gender"
-            value={editedProfile.gender}
-            onChange={handleInputChange}
-            placeholder="Gender"
-            className="border rounded-lg px-4 py-2"
-          />
-          <input
-            type="date"
-            name="dob"
-            value={editedProfile.dob}
-            onChange={handleInputChange}
-            className="border rounded-lg px-4 py-2"
-          />
-          <input
-            type="text"
-            name="idProof"
-            value={editedProfile.idProof}
-            onChange={handleInputChange}
-            placeholder="ID Proof (e.g. Aadhaar, PAN)"
-            className="border rounded-lg px-4 py-2 col-span-2"
-          /> */}
-        </div>
-
-        <div className="flex justify-center space-x-4 mt-4">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsEditingProfile(false)}
-            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    )}
-  </motion.div>
-)}
-
-            
-
-          {activeSection === 'My Properties' && (
-  <motion.div {...fadeAnim} key="MyProperties" className="bg-white p-8 rounded-xl shadow-lg mt-4">
-    <h3 className="text-xl font-bold mb-4 border-b pb-2 text-orange-500">My Properties</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      {/* Property Card */}
-      {[
-        { id: 1, name: 'Urban Stay', location: 'Koregaon Park, Pune', img: '/pg1.jpg' },
-        { id: 2, name: 'Green PG', location: 'Kothrud, Pune', img: '/pg2.jpg' },
-      ].map((property) => (
-        <div key={property.id} className="bg-orange-50 rounded-lg shadow p-4 hover:shadow-md transition relative">
-          <img src={property.img} alt={property.name} className="w-full h-40 object-cover rounded-md mb-2" />
-          <h4 className="text-lg font-semibold">{property.name}</h4>
-          <p className="text-sm text-gray-700">Location: {property.location}</p>
-
-          {/* Edit Icon/Button */}
-          <button
-            onClick={() => window.location.href = `/property-details/${property.id}`}
-            className="absolute top-3 right-3 text-orange-600 hover:text-orange-800 transition"
-            title="Edit Property"
-          >
-            ✏️
-          </button>
-        </div>
-      ))}
-
-    </div>
-  </motion.div>
-)}
+            )}
 
 
+            {/* My Properties Section (fixed) */}
+            {activeSection === "My Properties" && (
+              <motion.div {...fadeAnim} key="MyProperties" className="bg-white p-8 rounded-xl shadow-lg mt-4">
+                <h3 className="text-xl font-bold mb-4 border-b pb-2 text-orange-500">My Properties</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {properties && properties.length > 0 ? (
+                    properties.map((property) => (
+                      <div
+                        key={property._id}
+                        className="bg-orange-50 rounded-lg shadow p-4 hover:shadow-md transition relative"
+                      >
+                        <img
+                          src={`http://localhost:5000/${property.image}`}
+                          alt={property.propertyName}
+                          className="w-full h-40 object-cover rounded-md mb-2"
+                        />
+                        <h4 className="text-lg font-semibold">{property.propertyName}</h4>
+                        <p className="text-sm text-gray-700">Location: {property.city}</p>
+                        <button
+                          onClick={() => (window.location.href = `/property-edit-form/${property._id}`)}
+                          className="absolute top-3 right-3 text-orange-600 hover:text-orange-800 transition"
+                          title="Edit Property"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 col-span-2">No properties added yet.</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
 
-           {activeSection === 'Bookings' && (
+            {/* --- keep your Profile, Bookings, Visits, Upload Property sections unchanged --- */}
+              {activeSection === 'Bookings' && (
   <motion.div {...fadeAnim} key="Bookings" className="bg-white p-8 rounded-xl shadow-lg mt-4">
     <h3 className="text-2xl font-bold mb-6 text-orange-500">Your Bookings</h3>
 
@@ -350,31 +389,70 @@ const bookings = [
               </motion.div>
             )}
 
-               {/* Upload Property Section */}
-      {activeSection === 'Upload Property' && (
-  <motion.div {...fadeAnim} className="bg-white p-10 rounded-xl shadow-lg mt-4 max-w-5xl mx-auto">
-    <h3 className="text-xl font-bold mb-6 text-orange-500 text-center">Upload Your Property</h3>
-    <form className="space-y-6 text-gray-700">
+
+            {/* Upload Property Section */}
+          {activeSection === "Upload Property" && (
+  <motion.div
+    {...fadeAnim}
+    className="bg-white p-10 rounded-xl shadow-lg mt-4 max-w-5xl mx-auto"
+  >
+    <h3 className="text-xl font-bold mb-6 text-orange-500 text-center">
+      Upload Your Property
+    </h3>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 text-gray-700"
+      encType="multipart/form-data"
+    >
       <div className="grid grid-cols-2 gap-6">
-        <input type="text" placeholder="Owner Name" className="input-style" />
+        {/* Property Name */}
+        <input
+          type="text"
+          name="propertyName"
+          value={formData.propertyName}
+          onChange={handleChange}
+          placeholder="Property Name"
+          className="input-style"
+          required
+        />
+
+        {/* Owner Name */}
+        <input
+          type="text"
+          name="ownerName"
+          value={formData.ownerName}
+          onChange={handleChange}
+          placeholder="Owner Name"
+          className="input-style"
+          required
+        />
 
         {/* Property Type Dropdown */}
         <select
-          value={propertyType}
-          onChange={(e) => setPropertyType(e.target.value)}
+          name="propertyType"
+          value={formData.propertyType}
+          onChange={(e) => {
+            handleChange(e);
+            setPropertyType(e.target.value);
+          }}
           className="input-style text-gray-500"
+          required
         >
           <option value="" disabled hidden>
             Type of Property
           </option>
-         
           <option value="PG">PG</option>
           <option value="Flat">Flat</option>
         </select>
 
         {/* Flat Type Dropdown (only if Flat is selected) */}
-        {propertyType === 'Flat' && (
-          <select className="input-style">
+        {propertyType === "Flat" && (
+          <select
+            name="flatType"
+            value={formData.flatType}
+            onChange={handleChange}
+            className="input-style"
+          >
             <option value="" disabled hidden>
               Select Flat Type
             </option>
@@ -384,42 +462,166 @@ const bookings = [
           </select>
         )}
 
-        <input type="number" placeholder="No. of Sharing" className="input-style" />
-        <input type="text" placeholder="City" className="input-style" />
-        <input type="text" placeholder="Address" className="input-style" />
-        <input type="text" placeholder="Phone Number" className="input-style" />
-        <input type="email" placeholder="Email" className="input-style" />
+        {/* Sharing */}
+        <input
+          type="number"
+          name="sharing"
+          value={formData.sharing}
+          onChange={handleChange}
+          placeholder="No. of Sharing"
+          className="input-style"
+        />
 
-        <select className="input-style">
+        {/* City */}
+        <input
+          type="text"
+          name="city"
+          value={formData.city}
+          onChange={handleChange}
+          placeholder="City"
+          className="input-style"
+          required
+        />
+
+        {/* Address */}
+        <input
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Address"
+          className="input-style"
+          required
+        />
+
+        {/* Phone */}
+        <input
+          type="text"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="Phone Number"
+          className="input-style"
+        />
+
+        {/* Email */}
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Email"
+          className="input-style"
+        />
+
+        {/* Gender Preference */}
+        <select
+          name="genderPreference"
+          value={formData.genderPreference}
+          onChange={handleChange}
+          className="input-style"
+        >
           <option value="" disabled hidden>
             Gender Preference
           </option>
-          <option>Boys</option>
-          <option>Girls</option>
-          <option>All</option>
+          <option value="Boys">Boys</option>
+          <option value="Girls">Girls</option>
+          <option value="All">All</option>
         </select>
 
-        <input type="text" placeholder="Rent Amount" className="input-style" />
-        <input type="text" placeholder="Deposit Amount" className="input-style" />
+        {/* Food Preference */}
+        <select
+          name="foodPreference"
+          value={formData.foodPreference}
+          onChange={handleChange}
+          className="input-style"
+        >
+          <option value="" disabled hidden>
+            Food Preference
+          </option>
+          <option value="Veg">Veg</option>
+          <option value="Non-Veg">Non-Veg</option>
+          <option value="Both">Both</option>
+        </select>
+
+        {/* Rent */}
+        <input
+          type="text"
+          name="rent"
+          value={formData.rent}
+          onChange={handleChange}
+          placeholder="Rent Amount"
+          className="input-style"
+        />
+
+        {/* Deposit */}
+        <input
+          type="text"
+          name="deposit"
+          value={formData.deposit}
+          onChange={handleChange}
+          placeholder="Deposit Amount"
+          className="input-style"
+        />
       </div>
 
       {/* PG Room Numbers Textarea */}
-      {propertyType === 'PG' && (
+      {propertyType === "PG" && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">PG Room Numbers Available</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            PG Room Numbers Available
+          </label>
           <textarea
+            name="pgRooms"
+            value={formData.pgRooms}
+            onChange={handleChange}
             className="input-style w-full h-24 resize-none"
             placeholder="Enter room numbers separated by commas (e.g. 101, 102, 103)"
           ></textarea>
         </div>
       )}
 
+      {/* Amenities */}
       <textarea
+        name="amenities"
+        value={formData.amenities}
+        onChange={handleChange}
         placeholder="Amenities (comma separated)"
         className="input-style w-full h-24 resize-none"
       ></textarea>
 
-      <input type="file" className="input-style" />
+      {/* Upload Image */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Upload Property Image
+        </label>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, image: e.target.files[0] }))
+          }
+          className="input-style w-full"
+        />
+      </div>
+
+      {/* Upload Image */}
+{/* <div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Upload Property Images
+  </label>
+  <input
+    type="file"
+    name="images"
+    accept="image/*"
+    multiple // ✅ allow multiple uploads
+    onChange={(e) => setImages(Array.from(e.target.files))} // ✅ store multiple files
+    className="input-style w-full"
+  />
+</div> */}
+
+
 
       <div className="text-center">
         <button
