@@ -3,7 +3,7 @@ const TenantProfile = require("../models/TenantProfile");
 
 exports.saveTenantProfile = async (req, res) => {
   try {
-    const { userId, name, phone, ...otherData } = req.body;
+    const { userId, ...otherData } = req.body;
 
     // Update or create tenant profile
     let profile = await TenantProfile.findOne({ userId });
@@ -11,16 +11,16 @@ exports.saveTenantProfile = async (req, res) => {
     if (profile) {
       profile = await TenantProfile.findOneAndUpdate(
         { userId },
-        { ...otherData, name, phone },
+        { ...otherData},
         { new: true }
       );
     } else {
-      profile = new TenantProfile({ userId, name, phone, ...otherData });
+      profile = new TenantProfile({ userId,  ...otherData });
       await profile.save();
     }
 
     // Update User collection for name and phone
-    await User.findByIdAndUpdate(userId, { name, phone }, { new: true });
+    //await User.findByIdAndUpdate(userId, { name, phone }, { new: true });
 
     res.status(201).json(profile);
   } catch (err) {
