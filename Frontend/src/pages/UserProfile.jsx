@@ -5,8 +5,7 @@ import { FaUser, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
 const UserProfile = () => {
   const [activeSection, setActiveSection] = useState("Profile");
   const userData = localStorage.getItem("user");
-  const userName = localStorage.getItem("name");
-
+  const userName = userData ? JSON.parse(userData).email : null;
   const userEmail = userData ? JSON.parse(userData).email : null;
   const userPhone = userData ? JSON.parse(userData).phone : null;
   const userId = userData ? JSON.parse(userData).id : null; // backend user id
@@ -254,9 +253,10 @@ const UserProfile = () => {
                           type="text"
                           name="name"
                           value={editedProfile.name}
-                          onChange={handleInputChange}
-                          placeholder="Enter your name"
-                          className="border rounded-lg px-4 py-2 w-full"
+                           disabled
+                          //onChange={handleInputChange}
+                          //placeholder="Enter your name"
+                          className="w-full p-2 border rounded-lg bg-gray-200 cursor-not-allowed text-gray-800"
                         />
                       </div>
 
@@ -266,19 +266,21 @@ const UserProfile = () => {
                           type="email"
                           value={profileDetails.email}
                           disabled
-                          className="w-full p-2 border rounded-lg bg-gray-200 cursor-not-allowed"
+                          className="w-full p-2 border rounded-lg bg-gray-200 cursor-not-allowed text-gray-800"
                         />
                       </div>
 
                       <div>
                         <label className="block text-gray-700 mb-1">Phone</label>
                         <input
-                          type="text"
+                          type="text" 
                           name="phone"
                           value={editedProfile.phone}
-                          onChange={handleInputChange}
-                          placeholder="Enter your phone number"
-                          className="border rounded-lg px-4 py-2 w-full"
+                          disabled
+                          className="w-full p-2 border rounded-lg bg-gray-200 cursor-not-allowed text-gray-800"
+                          // onChange={handleInputChange}
+                          // placeholder="Enter your phone number"
+                          
                         />
                       </div>
 
@@ -290,7 +292,7 @@ const UserProfile = () => {
                           value={editedProfile.location}
                           onChange={handleInputChange}
                           placeholder="Enter your location"
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         />
                       </div>
 
@@ -301,7 +303,7 @@ const UserProfile = () => {
                           name="dob"
                           value={editedProfile.dob}
                           onChange={handleInputChange}
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         />
                       </div>
 
@@ -311,7 +313,7 @@ const UserProfile = () => {
                           name="gender"
                           value={editedProfile.gender}
                           onChange={handleInputChange}
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         >
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
@@ -326,7 +328,7 @@ const UserProfile = () => {
                           name="maritalStatus"
                           value={editedProfile.maritalStatus}
                           onChange={handleInputChange}
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         >
                           <option value="">Select Marital Status</option>
                           <option value="Single">Single</option>
@@ -342,7 +344,7 @@ const UserProfile = () => {
                           value={editedProfile.employment}
                           onChange={handleInputChange}
                           placeholder="Enter your employment details"
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         />
                       </div>
 
@@ -354,7 +356,7 @@ const UserProfile = () => {
                           value={editedProfile.idProof}
                           onChange={handleInputChange}
                           placeholder="Enter ID proof (Aadhaar No.)"
-                          className="border rounded-lg px-4 py-2 w-full"
+                          className="border rounded-lg px-4 py-2 w-full bg-gray-200 text-gray-800"
                         />
                       </div>
                     </div>

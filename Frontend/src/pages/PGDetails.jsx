@@ -217,11 +217,22 @@ const PGDetails = () => {
         <div className="space-y-3">
           <div><strong className="text-gray-700">Owner Name:</strong> {pg.ownerName}</div>
           <div><strong className="text-gray-700">Property Type:</strong> {pg.propertyType}</div>
-          <div><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
-          <div><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
-          <div><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
-          <div><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
-          <div><strong className="text-gray-700">PG Rooms:</strong> {pg.pgRooms || "N/A"}</div>
+          {pg.propertyType === "PG" && (
+            <>
+            <div><strong className="text-gray-700">PG Rooms:</strong> {pg.pgRooms || "N/A"}</div>
+            </>
+          )}
+          {pg.propertyType === "Flat" && (
+            <>
+            <div><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
+            </>
+          )}
+              
+              <div><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
+              <div><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
+              <div><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
+              
+            
           <div><strong className="text-gray-700">Phone:</strong> {pg.phone}</div>
           <div><strong className="text-gray-700">Email:</strong> {pg.email}</div>
         </div>

@@ -330,7 +330,7 @@ const PGListing = () => {
                   <p className="text-sm text-gray-500 mb-1">{pg.city}</p>
                   <p className="text-lg font-semibold text-orange-600 mb-1">₹{pg.rent}/month</p>
                   <p className="text-sm text-gray-600 mb-1">
-                    {pg.genderPreference} • {pg.propertyType} • {pg.flatType || ""}
+                    {pg.genderPreference} • {pg.propertyType}  • {pg.foodPreference || ""} • {pg.flatType || ""}
                   </p>
                   <p className="text-sm text-gray-600 mt-2 flex-1">
                     <span className="font-medium">Amenities:</span>{" "}
@@ -383,7 +383,7 @@ const PGListing = () => {
             <FilterGroup
               title="Accommodation Type"
               category="accommodation"
-              options={["Hostel", "PG", "Flat", "House"]}
+              options={["PG", "Flat"]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}
@@ -392,7 +392,7 @@ const PGListing = () => {
             <FilterGroup
               title="Food Options"
               category="food"
-              options={["Vegetarian", "Non-Veg"]}
+              options={["Veg", "Non-Veg", "Both(Veg-Non-Veg)"]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}
@@ -401,7 +401,7 @@ const PGListing = () => {
             <FilterGroup
               title="Amenities"
               category="amenities"
-              options={["WiFi", "Balcony", "Parking", "Gym", "Terrace", "Garden"]}
+              options={["WiFi", "Balcony", "Parking", "Terrace", "Garden", "Power Backup", "Geyser", "CCTV", "RO Water","Washing Machine"]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}

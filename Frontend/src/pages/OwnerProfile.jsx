@@ -5,15 +5,19 @@ import { motion, AnimatePresence } from "framer-motion";
 const OwnerProfile = () => {
   const [activeSection, setActiveSection] = useState("Profile");
 
+  const userData = localStorage.getItem("user");
+  const userName = localStorage.getItem("name");
+
+  const userEmail = userData ? JSON.parse(userData).email : null;
+  const userPhone = userData ? JSON.parse(userData).phone : null;
+  const userId = userData ? JSON.parse(userData).id : null; // backend user id
+  //console.log("User ID:", userId);
+
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileDetails, setProfileDetails] = useState({
-    name: "Srushti Kange",
-    email: "srushti@example.com",
-    phone: "9876543210",
-    location: "Pune",
-    gender: "Female",
-    dob: "2000-01-01",
-    idProof: "Aadhaar: XXXX-XXXX-XXXX",
+    name: userName,
+    email: userEmail,
+    phone: userPhone,
   });
 
   const [editedProfile, setEditedProfile] = useState({ ...profileDetails });
@@ -21,8 +25,9 @@ const OwnerProfile = () => {
 
   // ---------------- Fetch Owner Properties ----------------
   const [properties, setProperties] = useState([]);
+
   const user = JSON.parse(localStorage.getItem("user"));
-const ownerId = user?.id;  // the logged-in user's id
+  const ownerId = user?.id;  // the logged-in user's id
 // console.log("Owner ID:", ownerId);
 
 useEffect(() => {
@@ -85,7 +90,7 @@ useEffect(() => {
 
   const [formData, setFormData] = useState({
     ownerId: ownerId || "", // Set ownerId from logged-in user
-    ownerName: "",
+    ownerName: userName || "",
     propertyType: "",
     flatType: "",
     sharing: "",
@@ -98,6 +103,9 @@ useEffect(() => {
     deposit: "",
     pgRooms: "",
     amenities: "",
+    foodPreference: "",
+    propertyName: "",
+    // image: null, // handled separately
   });
 
   const handleChange = (e) => {
@@ -136,6 +144,9 @@ useEffect(() => {
 
       const result = await res.json();
       alert("Property uploaded successfully!");
+      setProperties((prev) => [...prev, result.property]); // add new property to list
+      setActiveSection("My Properties"); // switch to My Properties section
+      // Reset form
       console.log(result);
     } catch (err) {
       console.error("Upload error:", err);
@@ -179,9 +190,9 @@ useEffect(() => {
                   Owner Profile
                 </h2>
 
-                {!isEditingProfile ? (
-                  <>
-                    <div className="grid grid-cols-2 gap-4 text-gray-800">
+                {/* {!isEditingProfile ? (
+                  <> */}
+                    <div className="grid grid-cols-1 gap-4 text-gray-800">
                       <p>
                         <strong>Name:</strong> {profileDetails.name}
                       </p>
@@ -193,7 +204,7 @@ useEffect(() => {
                       </p>
                     </div>
 
-                    <div className="flex justify-center mt-6">
+                    {/* <div className="flex justify-center mt-6">
                       <button
                         onClick={() => setIsEditingProfile(true)}
                         className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
@@ -247,7 +258,7 @@ useEffect(() => {
                       </button>
                     </div>
                   </form>
-                )}
+                )} */}
               </motion.div>
             )}
 
@@ -420,10 +431,14 @@ useEffect(() => {
         <input
           type="text"
           name="ownerName"
-          value={formData.ownerName}
-          onChange={handleChange}
-          placeholder="Owner Name"
-          className="input-style"
+          // value={formData.ownerName}
+          // onChange={handleChange}
+          // placeholder="Owner Name"
+          // className="input-style"
+          value={userName || ""}
+          disabled
+          className="w-full p-2 border rounded-lg bg-gray-200 cursor-not-allowed"
+
           required
         />
 
@@ -541,7 +556,7 @@ useEffect(() => {
           </option>
           <option value="Veg">Veg</option>
           <option value="Non-Veg">Non-Veg</option>
-          <option value="Both">Both</option>
+          <option value="Both(Veg-Non-Veg)">Both(Veg-Non-Veg)</option>
         </select>
 
         {/* Rent */}
