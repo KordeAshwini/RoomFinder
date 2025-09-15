@@ -318,7 +318,7 @@ const PGListing = () => {
                 className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col"
               >
                 <img
-                  src={`http://localhost:5000/${pg.image}`} // ✅ load from backend
+                  src={`http://localhost:5000/${pg.images[0]}`} // ✅ load from backend
                   alt={pg.propertyName}
                   className="w-full h-52 object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) =>

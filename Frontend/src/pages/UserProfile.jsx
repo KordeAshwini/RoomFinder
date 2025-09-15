@@ -92,27 +92,62 @@ const UserProfile = () => {
     }
   };
 
-  const bookings = [
-    { id: 1, pgName: "Sunrise PG", status: "Pending" },
-    { id: 2, pgName: "Elite PG", status: "Accepted" },
-  ];
+  // const bookings = [
+  //   { id: 1, pgName: "Sunrise PG", status: "Pending" },
+  //   { id: 2, pgName: "Elite PG", status: "Accepted" },
+  // ];
+const [bookings, setBookings] = useState([]);
 
-  const visits = [
-    {
-      id: 1,
-      pgName: "Sunrise PG",
-      date: "2025-08-05",
-      time: "11:00 AM",
-      address: "Baner, Pune",
-    },
-    {
-      id: 2,
-      pgName: "Elite PG",
-      date: "2025-08-08",
-      time: "02:00 PM",
-      address: "Kothrud, Pune",
-    },
-  ];
+useEffect(() => {
+  const fetchBookings = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings/user/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch bookings");
+
+      const data = await res.json();
+      setBookings(data);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+    }
+  };
+
+  if (userId) fetchBookings();
+}, [userId]);
+
+const [visits, setVisits] = useState([]);
+
+useEffect(() => {
+  const fetchVisits = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/visits/user/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch bookings");
+
+      const data = await res.json();
+      setVisits(data);
+    } catch (err) {
+      console.error("Error fetching bookings:", err);
+    }
+  };
+
+  if (userId) fetchVisits();
+}, [userId]);
+
+  // const visits = [
+  //   {
+  //     id: 1,
+  //     pgName: "Sunrise PG",
+  //     date: "2025-08-05",
+  //     time: "11:00 AM",
+  //     address: "Baner, Pune",
+  //   },
+  //   {
+  //     id: 2,
+  //     pgName: "Elite PG",
+  //     date: "2025-08-08",
+  //     time: "02:00 PM",
+  //     address: "Kothrud, Pune",
+  //   },
+  // ];
 
   const fadeAnim = {
     initial: { opacity: 0, y: 20 },
@@ -387,6 +422,45 @@ const UserProfile = () => {
                   Your Bookings
                 </h3>
                 <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                  {bookings.length > 0 ? (
+                    bookings.map((booking) => (
+                      <div
+                        key={booking._id}
+                        className="p-4 rounded-lg bg-orange-50 shadow-sm"
+                      >
+                        <p>
+                          <strong>PG/Flat Name:</strong> {booking.property?.propertyName}
+                        </p>
+                        <p>
+                          <strong>City:</strong> {booking.property?.city}
+                        </p>
+                        <p>
+                          <strong>Property Type:</strong> {booking.property?.propertyType}
+                        </p>
+                        <p>
+                          <strong>Status:</strong> {booking.status}
+                        </p>
+                        {booking.status === "Accepted" && (
+                          <button className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all">
+                            Pay Now
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No bookings found.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+
+            {/* {activeSection === "Bookings" && (
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h3 className="text-xl font-semibold mb-4 border-b pb-2 text-orange-500">
+                  Your Bookings
+                </h3>
+                <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
                   {bookings.map((booking) => (
                     <div
                       key={booking.id}
@@ -405,7 +479,7 @@ const UserProfile = () => {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
 
             {activeSection === "Visits" && (
               <div className="bg-white p-6 rounded-xl shadow-md">
@@ -419,16 +493,19 @@ const UserProfile = () => {
                       className="p-4 rounded-lg bg-orange-50 shadow-sm"
                     >
                       <p>
-                        <strong>PG Name:</strong> {visit.pgName}
+                        <strong>PG Name:</strong> {visit.propertyName}
                       </p>
                       <p>
                         <strong>Date:</strong> {visit.date}
                       </p>
                       <p>
-                        <strong>Time:</strong> {visit.time}
+                        <strong>Time:</strong> {visit.slot}
                       </p>
                       <p>
-                        <strong>Address:</strong> {visit.address}
+                        <strong>Address:</strong> {visit.propertyId?.address}
+                      </p>
+                      <p>
+                        <strong>City:</strong> {visit.propertyId?.city}
                       </p>
                     </div>
                   ))}

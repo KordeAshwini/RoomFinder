@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const BookingFormModal = ({ onClose, pgName, gender }) => {
-  const [user, setUser] = useState({ name: "", email: "", phone: "" });
+const BookingFormModal = ({ onClose, pgId,pgName, gender }) => {
+  const [user, setUser] = useState(null);
 
   const [formData, setFormData] = useState({
     moveInDate: "",
@@ -13,26 +13,64 @@ const BookingFormModal = ({ onClose, pgName, gender }) => {
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
-     if (userData) {
-      setUser(JSON.parse(userData));
+   // console.log("User Data from localStorage:", userData);
+    if (userData) {
+      setUser(JSON.parse(userData)); // ✅ user object stored at login (must include _id, name, email, phone)
     }
   }, []);
-  //console.log(localStorage.getItem("user"));
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Booking submitted:", {
-      ...user,
-      pgName,
-      ...formData,
-    });
-    alert("Booking request submitted successfully!");
-    onClose();
+    if (!user || !user.id) {
+      alert("Please log in first.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/bookings/createBooking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,   // ✅ send foreign key (user)
+          propertyId: pgId,   // ✅ send foreign key (property)
+          ...formData,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert("Booking request submitted! Check your email.");
+        onClose();
+      } else {
+        alert("Booking failed: " + data.error);
+      }
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      alert("Something went wrong.");
+    }
   };
+
+  if (!user) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-xl text-center">
+          <h2 className="text-xl font-semibold text-orange-600 mb-4">
+            Please Log In to Book
+          </h2>
+          <button
+            onClick={onClose}
+            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
@@ -97,11 +135,10 @@ const BookingFormModal = ({ onClose, pgName, gender }) => {
               <option value="">Select Your Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
-              <option value="other">Family</option>
+              <option value="family">Family</option>
             </select>
           </div>
 
-          {/* Move-in Date with Calendar Icon */}
           <div className="relative">
             <label className="text-sm text-gray-700">Move-in Date</label>
             <input
@@ -113,7 +150,7 @@ const BookingFormModal = ({ onClose, pgName, gender }) => {
               className="w-full bg-gray-100 border p-2 rounded-md text-sm text-gray-700"
             />
             <div className="absolute right-3 bottom-2.5 text-black pointer-events-none">
-              <svg
+               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
                 fill="none"
@@ -162,6 +199,17 @@ const BookingFormModal = ({ onClose, pgName, gender }) => {
               <option value="double">2 Sharing</option>
               <option value="triple">3 Sharing</option>
             </select>
+          </div>
+
+          <div className="col-span-2">
+            <label className="text-sm text-gray-700">Message (Optional)</label>
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              rows="3"
+              className="w-full border p-2 bg-gray-100 rounded-md text-sm text-gray-700"
+            ></textarea>
           </div>
 
           <div className="col-span-2">

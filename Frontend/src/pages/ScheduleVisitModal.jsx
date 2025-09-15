@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect,useState } from "react";
 import dayjs from "dayjs";
 import { X } from "lucide-react";
 
-const ScheduleVisitModal = ({ pgName, gender, onClose }) => {
+
+const ScheduleVisitModal = ({ pgName, pgId, gender, onClose }) => {
+  const [user, setUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
 
+  const userData = localStorage.getItem("user");
+  
   const timeSlots = [
     { label: "Morning", time: "10:00 AM - 12:00 PM" },
     { label: "Afternoon", time: "2:00 PM - 4:00 PM" },
@@ -21,16 +25,55 @@ const ScheduleVisitModal = ({ pgName, gender, onClose }) => {
     };
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedDate || !selectedSlot) {
-      alert("Please select both date and slot.");
-      return;
-    }
+  useEffect(() => {
+      const userData = localStorage.getItem("user");
+     // console.log("User Data from localStorage:", userData);
+      if (userData) {
+        setUser(JSON.parse(userData)); // ✅ user object stored at login (must include _id, name, email, phone)
+      }
+    }, []);
+  
 
-    alert(`Visit scheduled for ${pgName} on ${selectedDate} during ${selectedSlot}`);
-    onClose();
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!user) {
+  alert("User not loaded yet, please try again.");
+  return;
+}
+
+
+  if (!selectedDate || !selectedSlot) {
+    alert("Please select both date and slot.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/visits/book", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId:user?.id,
+        propertyId: pgId,
+        propertyName: pgName,
+        date: selectedDate,
+        slot: selectedSlot,
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("Visit scheduled successfully!");
+      onClose();
+    } else {
+      alert(data.message || "Failed to schedule visit");
+    }
+  } catch (error) {
+    //console.error("Error booking visit:", error);
+    alert("Server error while scheduling visit");
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">

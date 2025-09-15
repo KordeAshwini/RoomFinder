@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 const OwnerProfile = () => {
@@ -7,20 +6,21 @@ const OwnerProfile = () => {
 
   const userData = localStorage.getItem("user");
   const userName = localStorage.getItem("name");
+  
 
   const userEmail = userData ? JSON.parse(userData).email : null;
   const userPhone = userData ? JSON.parse(userData).phone : null;
-  const userId = userData ? JSON.parse(userData).id : null; // backend user id
+  //const userId = userData ? JSON.parse(userData).id : null; // backend user id
   //console.log("User ID:", userId);
 
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  //const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileDetails, setProfileDetails] = useState({
     name: userName,
     email: userEmail,
     phone: userPhone,
   });
 
-  const [editedProfile, setEditedProfile] = useState({ ...profileDetails });
+ // const [editedProfile, setEditedProfile] = useState({ ...profileDetails });
   const [bookingTab, setBookingTab] = useState("Pending");
 
   // ---------------- Fetch Owner Properties ----------------
@@ -40,7 +40,7 @@ useEffect(() => {
   fetch(`http://localhost:5000/api/properties/owner/${storedUser.id}`)
     .then((res) => res.json())
     .then((data) => {
-      console.log("Fetched Data:", data); // ✅ check API response shape
+      //console.log("Fetched Data:", data); // ✅ check API response shape
       const fetchedProperties = data.properties || data; // handle both array or object
       setProperties(fetchedProperties);
     })
@@ -49,16 +49,16 @@ useEffect(() => {
 
   // ---------------------------------------------------------
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedProfile((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setEditedProfile((prev) => ({ ...prev, [name]: value }));
+  // };
 
-  const handleProfileSave = (e) => {
-    e.preventDefault();
-    setProfileDetails(editedProfile);
-    setIsEditingProfile(false);
-  };
+  // const handleProfileSave = (e) => {
+  //   e.preventDefault();
+  //   setProfileDetails(editedProfile);
+  //   setIsEditingProfile(false);
+  // };
 
   const fadeAnim = {
     initial: { opacity: 0, y: 10 },
@@ -67,26 +67,84 @@ useEffect(() => {
   };
 
   // Dummy bookings & visits (keep as you had)
-  const bookings = [
-    {
-      id: 1,
-      pgName: "Sunrise PG",
-      roomType: "Single",
-      checkInDate: "2025-08-05",
-      bookingDate: "2025-07-30",
-      status: "pending",
-      user: { name: "Srushti Kange", email: "srushti@example.com", phone: "9876543210" },
-      transactionId: "TXN123456",
-    },
-  ];
-  const visits = [
-    { id: 1, pgName: "Green PG", type: "Boys PG", date: "2025-08-10", time: "4:00 PM", address: "Kothrud, Pune" },
-    { id: 2, pgName: "Urban Stay", type: "Girls PG", date: "2025-08-15", time: "11:00 AM", address: "Viman Nagar, Pune" },
-  ];
+
+  const [bookings, setBookings] = useState([]);
+
+  // ✅ Fetch bookings with Fetch API
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/bookings/getbookings", );
+        const data = await res.json();
+        if (data.success) {
+          setBookings(data.bookings);
+        }
+        
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+    };
+    fetchBookings();
+  }, []);
+
+  const handleStatusChange = async (bookingId, newStatus) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      // update UI
+      setBookings((prev) =>
+        prev.map((b) => (b._id === bookingId ? { ...b, status: newStatus } : b))
+      );
+       if (newStatus === "Accepted") setBookingTab("Accepted");
+      alert(`Booking ${newStatus} successfully!`);
+    } else {
+      alert(data.message || "Failed to update status");
+    }
+  } catch (err) {
+    console.error("Error updating status:", err);
+    alert("Error updating booking status");
+  }
+};
+
+
+  // const visits = [
+  //   { id: 1, pgName: "Green PG", type: "Boys PG", date: "2025-08-10", time: "4:00 PM", address: "Kothrud, Pune" },
+  //   { id: 2, pgName: "Urban Stay", type: "Girls PG", date: "2025-08-15", time: "11:00 AM", address: "Viman Nagar, Pune" },
+  // ];
+
+    const [visits, setVisits] = useState([]);
+
+  // ✅ Fetch visits with Fetch API
+  useEffect(() => {
+    const fetchVisits = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/visits/getVisits", );
+        const data = await res.json();
+        if (data.success) {
+          setVisits(data.visits);
+        }
+        
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+    };
+    fetchVisits();
+  }, []);
 
   // ---------------- Upload Property State + Handlers ----------------
   const [propertyType, setPropertyType] = useState("");
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
 
   const [formData, setFormData] = useState({
     ownerId: ownerId || "", // Set ownerId from logged-in user
@@ -122,8 +180,10 @@ useEffect(() => {
       Object.keys(formData).forEach((key) => {
         data.append(key, formData[key]);
       });
-      if (image) {
-        data.append("image", image);
+      if (images.length > 0) {
+        images.forEach((image) => {
+          data.append("images", image);
+        });
       }
 
       const res = await fetch("http://localhost:5000/api/properties/createproperties", {
@@ -204,61 +264,7 @@ useEffect(() => {
                       </p>
                     </div>
 
-                    {/* <div className="flex justify-center mt-6">
-                      <button
-                        onClick={() => setIsEditingProfile(true)}
-                        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all"
-                      >
-                        Edit Profile
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <form onSubmit={handleProfileSave} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <input
-                        type="text"
-                        name="name"
-                        value={editedProfile.name}
-                        onChange={handleInputChange}
-                        placeholder="Name"
-                        className="border rounded-lg px-4 py-2"
-                      />
-                      <input
-                        type="email"
-                        name="email"
-                        value={editedProfile.email}
-                        onChange={handleInputChange}
-                        placeholder="Email"
-                        className="border rounded-lg px-4 py-2"
-                      />
-                      <input
-                        type="text"
-                        name="phone"
-                        value={editedProfile.phone}
-                        onChange={handleInputChange}
-                        placeholder="Phone"
-                        className="border rounded-lg px-4 py-2"
-                      />
-                    </div>
-
-                    <div className="flex justify-center space-x-4 mt-4">
-                      <button
-                        type="submit"
-                        className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all"
-                      >
-                        Save
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsEditingProfile(false)}
-                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
-                )} */}
+                   
               </motion.div>
             )}
 
@@ -275,7 +281,7 @@ useEffect(() => {
                         className="bg-orange-50 rounded-lg shadow p-4 hover:shadow-md transition relative"
                       >
                         <img
-                          src={`http://localhost:5000/${property.image}`}
+                          src={`http://localhost:5000/${property.images[0]}`} // display first image
                           alt={property.propertyName}
                           className="w-full h-40 object-cover rounded-md mb-2"
                         />
@@ -320,7 +326,7 @@ useEffect(() => {
     </div>
 
     {/* Booking Lists */}
-    <div className="space-y-6">
+    {/* <div className="space-y-6">
       {bookings
         .filter(b => b.status === bookingTab.toLowerCase())
         .map(booking => (
@@ -328,14 +334,14 @@ useEffect(() => {
             key={booking.id}
             className="bg-orange-50 p-6 rounded-xl shadow hover:shadow-md transition"
           >
-            {/* Common Info */}
+            {/* Common Info /}
             <p><strong>PG Name:</strong> {booking.pgName}</p>
             <p><strong>Room Type:</strong> {booking.roomType}</p>
             <p><strong>Check-in Date:</strong> {booking.checkInDate}</p>
             <p><strong>Booking Date:</strong> {booking.bookingDate}</p>
             <p><strong>Status:</strong> {booking.status}</p>
 
-            {/* Pending View */}
+            {/* Pending View /}
             {bookingTab === 'Pending' && (
               <>
                 <p className="mt-4 font-semibold text-gray-700">User Details:</p>
@@ -354,7 +360,7 @@ useEffect(() => {
               </>
             )}
 
-            {/* Accepted View */}
+            {/* Accepted View *]/}
             {bookingTab === 'Accepted' && (
               <>
                 <p className="mt-4"><strong>Payment Status:</strong> Pending</p>
@@ -364,7 +370,7 @@ useEffect(() => {
               </>
             )}
 
-            {/* Confirmed View */}
+            {/* Confirmed View /}
             {bookingTab === 'Confirmed' && (
               <>
                 <p className="mt-4"><strong>Payment Status:</strong> Paid</p>
@@ -374,11 +380,90 @@ useEffect(() => {
           </div>
         ))}
 
-      {/* No Bookings Message */}
+      {/* No Bookings Message /}
       {bookings.filter(b => b.status === bookingTab.toLowerCase()).length === 0 && (
         <p className="text-gray-600 text-center mt-10">No {bookingTab} bookings found.</p>
       )}
-    </div>
+    </div> */}
+<div className="space-y-6">
+  {bookings
+    //.filter(b => b.status === bookingTab)
+     .filter(b => b.status.toLowerCase() === bookingTab.toLowerCase())
+    .map(booking => (
+      <div
+        key={booking._id}
+        className="bg-orange-50 p-6 rounded-xl shadow hover:shadow-md transition"
+      >
+        {/* Common Info */}
+        <p><strong>PG Name:</strong> {booking.property?.propertyName}</p>
+        <p><strong>Room Type:</strong> {booking.property?.propertyType}</p>
+        <p><strong>City:</strong> {booking.property?.city}</p>
+        <p><strong>Rent:</strong> {booking.property?.rent}</p>
+        <p><strong>Check-in Date:</strong> {new Date(booking.moveInDate).toLocaleDateString()}</p>
+        <p><strong>Booking Date:</strong> {new Date(booking.createdAt).toLocaleDateString()}</p>
+        <p><strong>Status:</strong> {booking.status}</p>
+
+        {/* ✅ User who booked */}
+        <div className="mt-4">
+          <p className="font-semibold text-gray-700">Booked By:</p>
+          <p><strong>Name:</strong> {booking.user?.name}</p>
+          <p><strong>Email:</strong> {booking.user?.email}</p>
+          <p><strong>Phone:</strong> {booking.user?.phone}</p>
+        </div>
+
+        {/* ✅ Property Owner Info */}
+        {/* <div className="mt-4">
+          <p className="font-semibold text-gray-700">Property Owner:</p>
+          <p><strong>Name:</strong> {booking.property?.ownerId?.name}</p>
+          <p><strong>Email:</strong> {booking.property?.ownerId?.email}</p>
+          <p><strong>Phone:</strong> {booking.property?.ownerId?.phone}</p>
+        </div> */}
+
+
+        {/* Pending View */}
+        {bookingTab === "Pending" && (
+          <div className="mt-4 flex gap-3">
+            <button 
+            onClick={() => handleStatusChange(booking._id, "Accepted")}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+              Accept
+            </button>
+            <button 
+            onClick={() => handleStatusChange(booking._id, "Rejected")}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+              Reject
+            </button>
+          </div>
+        )}
+
+        {/* Accepted View */}
+        {bookingTab === "Accepted" && (
+          <>
+            <p className="mt-4"><strong>Payment Status:</strong> Pending</p>
+             {userData.role === "Tenant" && (
+            <button className="mt-3 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Pay Now
+            </button>
+    )}
+          </>
+        )}
+
+        {/* Confirmed View */}
+        {bookingTab === "Confirmed" && (
+          <>
+            <p className="mt-4"><strong>Payment Status:</strong> Paid</p>
+            <p><strong>Transaction ID:</strong> {booking.transactionId || "N/A"}</p>
+          </>
+        )}
+      </div>
+    ))}
+
+  {/* No Bookings Message */}
+  {bookings.filter(b => b.status === bookingTab).length === 0 && (
+    <p className="text-gray-600 text-center mt-10">No {bookingTab} bookings found.</p>
+  )}
+</div>
+
   </motion.div>
 )}
 
@@ -389,11 +474,15 @@ useEffect(() => {
                 <div className="space-y-4">
                   {visits.map((visit) => (
                     <div key={visit.id} className="p-4 rounded-lg bg-orange-50 shadow-sm hover:shadow-md transition">
-                      <p><strong>PG Name:</strong> {visit.pgName}</p>
-                      <p><strong>Property Type:</strong> {visit.type}</p>
+                      <p><strong>PG Name:</strong> {visit.propertyName}</p>
+                      <p><strong>Property Type:</strong> {visit.propertyId?.propertyType}</p>
                       <p><strong>Date:</strong> {visit.date}</p>
-                      <p><strong>Time:</strong> {visit.time}</p>
-                      <p><strong>Address:</strong> {visit.address}</p>
+                      <p><strong>Time:</strong> {visit.slot}</p>
+                      <p><strong>Address:</strong> {visit.propertyId?.address}</p>
+                      <p><strong>City:</strong> {visit.propertyId?.city}</p>
+                      <p><strong>Tenant Name:</strong> {visit.userId?.name}</p>
+                      <p><strong>Tenant Email:</strong> {visit.userId?.email}</p>
+                      <p><strong>Tenant Phone:</strong> {visit.userId?.phone}</p>
                     </div>
                   ))}
                 </div>
@@ -606,7 +695,7 @@ useEffect(() => {
       ></textarea>
 
       {/* Upload Image */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Upload Property Image
         </label>
@@ -619,10 +708,10 @@ useEffect(() => {
           }
           className="input-style w-full"
         />
-      </div>
+      </div> */}
 
       {/* Upload Image */}
-{/* <div>
+<div>
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Upload Property Images
   </label>
@@ -634,7 +723,7 @@ useEffect(() => {
     onChange={(e) => setImages(Array.from(e.target.files))} // ✅ store multiple files
     className="input-style w-full"
   />
-</div> */}
+</div>
 
 
 
