@@ -23,7 +23,7 @@ exports.createProperty = async (req, res) => {
     } = req.body;
 
     // Save relative path instead of just filename
-    const image = req.file ? "uploads/" + req.file.filename : null;
+    const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
 
     const newProperty = new Property({
       ownerId,
@@ -42,7 +42,7 @@ exports.createProperty = async (req, res) => {
       deposit,
       pgRooms,
       amenities,
-      image,
+      images, // store as array
     });
 
     await newProperty.save();

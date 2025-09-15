@@ -68,7 +68,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ✅ CREATE property
-router.post("/createproperties", upload.single("image"), createProperty);
+router.post("/createproperties", upload.array("images"), createProperty);
 
 // ✅ Get properties by ownerId
 router.get("/owner/:ownerId", getPropertiesByOwnerId);
@@ -77,7 +77,7 @@ router.get("/owner/:ownerId", getPropertiesByOwnerId);
 router.get("/:id", getPropertyById);
 
 // ✅ Update property by ID
-router.put("/:id", upload.single("image"),updateProperty);
+router.put("/:id", upload.array("images"), updateProperty);
 
 
 // ✅ Delete property by ID

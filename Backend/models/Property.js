@@ -17,7 +17,8 @@ const propertySchema = new mongoose.Schema({
   deposit: { type: String },
   pgRooms: { type: String },
   amenities: { type: String },
-  image: { type: String }, // will store file path
+ // image: { type: String }, // will store file path
+  images: [{ type: String }], // array to store multiple image file paths
 }, { timestamps: true });
 
 module.exports = mongoose.model("Property", propertySchema);
