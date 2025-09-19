@@ -1,5 +1,5 @@
 const Visit = require("../models/Visit");
-const User = require("../models/User");
+const User = require("../models/user");
 const Property = require("../models/Property");
 const sendEmail = require("../utils/sendEmail"); // ✅ Import your email utility
 // ✅ Book a visit

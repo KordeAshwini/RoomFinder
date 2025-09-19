@@ -1,6 +1,7 @@
 const Booking = require("../models/Booking");
-const User = require("../models/User");
+const User = require("../models/user");
 const Property = require("../models/Property");
+const Payment = require("../models/Payment");
 const sendEmail = require("../utils/sendEmail");
 
 // ✅ Create new booking
@@ -14,6 +15,13 @@ const createBooking = async (req, res) => {
     if (!user || !property) {
       return res.status(404).json({ success: false, error: "User or Property not found" });
     }
+
+     // 📌 New check: Prevent more than 2 bookings for the same property
+    const existingBookingsCount = await Booking.countDocuments({ user: userId, property: propertyId });
+    if (existingBookingsCount >= 2) {
+      return res.status(400).json({ success: false, error: "You can only book this PG up to 2 times." });
+    }
+
 
     // ✅ Save booking
     const booking = new Booking({
@@ -50,6 +58,8 @@ const createBooking = async (req, res) => {
 // ✅ Get all bookings (Admin/Owner)
 const getBookings = async (req, res) => {
   try {
+    const payments = await Payment.find();
+
     const bookings = await Booking.find()
       .populate("user", "name email phone") // fetch user details
       .populate({
@@ -62,7 +72,7 @@ const getBookings = async (req, res) => {
         },
       });
 
-    res.json({ success: true, bookings });
+    res.json({ success: true, bookings, payments });
   } catch (err) {
     console.error("❌ Fetch Error:", err);
     res.status(500).json({ success: false, error: "Server Error" });

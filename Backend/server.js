@@ -42,6 +42,7 @@ const propertyRoutes = require('./routes/propertyRoutes');
 const allPropertyRoutes = require('./routes/allpropertyRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const visitRoutes = require("./routes/visitRoutes");
+const PaymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,5 +67,6 @@ app.use("/api/properties", propertyRoutes);
 app.use("/api/allproperties", allPropertyRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/visits",visitRoutes);
+app.use("/api/payments", PaymentRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

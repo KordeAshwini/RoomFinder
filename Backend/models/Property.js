@@ -5,20 +5,20 @@ const propertySchema = new mongoose.Schema({
   propertyName: { type: String, required: true },
   ownerName: { type: String, required: true },
   propertyType: { type: String, required: true },
-  flatType: { type: String },
-  sharing: { type: Number },
+  flatType: { type: String},
+  sharing: { type: Number, required: true },
   city: { type: String, required: true },
   address: { type: String, required: true },
-  phone: { type: String },
-  email: { type: String },
-  genderPreference: { type: String },
-  foodPreference: { type: String },
-  rent: { type: String },
-  deposit: { type: String },
-  pgRooms: { type: String },
-  amenities: { type: String },
- // image: { type: String }, // will store file path
-  images: [{ type: String }], // array to store multiple image file paths
+  phone: { type: String, required: true },
+  email: { type: String, required: true },
+  genderPreference: { type: String, required: true },
+  foodPreference: { type: String, required: true },
+  rent: { type: String, required: true },
+  deposit: { type: String, required: true },
+  pgRooms: { type: String, required: true },
+  amenities: { type: String, required: true },
+// image: { type: String }, // will store file path
+  images: [{ type: String, required: true }], // array to store multiple image file paths
 }, { timestamps: true });
 
 module.exports = mongoose.model("Property", propertySchema);

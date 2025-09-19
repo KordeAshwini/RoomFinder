@@ -9,9 +9,9 @@ const bookingSchema = new mongoose.Schema({
   sharingPreference: { type: String, required: true },
   message: { type: String },
 
-  status: { type: String, enum: ["Pending", "Accepted", "Rejected"], default: "Pending" },
+  status: { type: String, enum: ["Pending", "Accepted", "Rejected","Confirmed"], default: "Pending" },
+  // transactionId: { type: String }, // New field for Stripe transaction ID
   createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
-

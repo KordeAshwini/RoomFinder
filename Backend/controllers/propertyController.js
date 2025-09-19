@@ -1,5 +1,6 @@
-const e = require("express");
 const Property = require("../models/Property");
+const fs = require("fs");
+const path = require("path");
 
 exports.createProperty = async (req, res) => {
   try {
@@ -22,7 +23,6 @@ exports.createProperty = async (req, res) => {
       amenities,
     } = req.body;
 
-    // Save relative path instead of just filename
     const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
 
     const newProperty = new Property({
@@ -42,7 +42,7 @@ exports.createProperty = async (req, res) => {
       deposit,
       pgRooms,
       amenities,
-      images, // store as array
+      images,
     });
 
     await newProperty.save();
@@ -57,8 +57,6 @@ exports.createProperty = async (req, res) => {
 exports.getPropertiesByOwnerId = async (req, res) => {
   try {
     const { ownerId } = req.params;
-    // console.log("Fetching properties for ownerId:", ownerId);
-
     const properties = await Property.find({ ownerId: ownerId });
 
     if (!properties || properties.length === 0) {
@@ -91,25 +89,45 @@ exports.getPropertyById = async (req, res) => {
 exports.updateProperty = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Collect updated fields from request
     const updatedData = { ...req.body };
+    let property = await Property.findById(id);
 
-    // If image is uploaded, update it too
-    if (req.file) {
-      updatedData.image = req.file.filename;
-    }
-
-    const updatedProperty = await Property.findByIdAndUpdate(id, updatedData, {
-      new: true, // return updated document
-      runValidators: true, // validate schema rules
-    });
-
-    if (!updatedProperty) {
+    if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
 
-    res.json({ message: "Property updated successfully", property: updatedProperty });
+    // Handle image updates
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map(file => "uploads/" + file.filename);
+      updatedData.images = [...property.images, ...newImages];
+    } else {
+      updatedData.images = property.images;
+    }
+
+    // Handle removal of images
+    if (req.body.imagesToRemove) {
+      const imagesToRemove = JSON.parse(req.body.imagesToRemove);
+      updatedData.images = updatedData.images.filter(img => !imagesToRemove.includes(img));
+      
+      // Delete files from the filesystem
+      imagesToRemove.forEach(img => {
+        const imagePath = path.join(__dirname, "..", img);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      });
+    }
+
+    property = await Property.findByIdAndUpdate(id, updatedData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    res.json({ message: "Property updated successfully", property });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error updating property" });
@@ -123,65 +141,17 @@ exports.deleteProperty = async (req, res) => {
 
     if (!deletedProperty) return res.status(404).json({ message: "Property not found" });
 
-    res.json({ message: "Property deleted successfully" });
+    // Delete all associated images from the filesystem
+    deletedProperty.images.forEach(img => {
+      const imagePath = path.join(__dirname, "..", img);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    });
+
+    res.json({ message: "Property and its images deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error deleting property" });
   }
 };
-
-// const Property = require("../models/Property");
-
-// const createProperty = async (req, res) => {
-//   try {
-//     const {
-//       propertyName,
-//       ownerName,
-//       propertyType,
-//       flatType,
-//       sharing,
-//       city,
-//       address,
-//       phone,
-//       email,
-//       genderPreference,
-//       foodPreference,
-//       rent,
-//       deposit,
-//       pgRooms,
-//       amenities,
-//     } = req.body;
-
-//     // Save relative paths instead of just filenames (for multiple images)
-//     const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
-
-//     const newProperty = new Property({
-//       propertyName,
-//       ownerName,
-//       propertyType,
-//       flatType,
-//       sharing,
-//       city,
-//       address,
-//       phone,
-//       email,
-//       genderPreference,
-//       foodPreference,
-//       rent,
-//       deposit,
-//       pgRooms,
-//       amenities,
-//       images, // store as array
-//     });
-
-//     await newProperty.save();
-
-//     res.status(201).json({ message: "Property uploaded successfully!", property: newProperty });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// };
-
-// module.exports = { createProperty };
-
