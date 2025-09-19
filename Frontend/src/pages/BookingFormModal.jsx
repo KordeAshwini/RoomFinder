@@ -49,7 +49,7 @@ const BookingFormModal = ({ onClose, pgId,pgName, gender }) => {
         alert("Booking failed: " + data.error);
       }
     } catch (error) {
-      console.error("Error submitting booking:", error);
+      //console.error("Error submitting booking:", error);
       alert("Something went wrong.");
     }
   };

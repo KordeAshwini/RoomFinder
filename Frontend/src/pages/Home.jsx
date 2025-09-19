@@ -27,7 +27,7 @@ const services = [
     description: "Filter listings by budget, location, amenities, and room type.",
   },
   {
-    id: 3,
+    id: 4,
     icon: "📍",
     title: "Location-Based Search",
     description: "Easily search PGs by location, college proximity, and transport access.",
