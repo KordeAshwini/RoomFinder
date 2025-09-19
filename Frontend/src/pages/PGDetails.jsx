@@ -77,26 +77,26 @@ const PGDetails = () => {
       {/* Details */}
       <div className="grid md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow-lg">
         <div className="space-y-3">
-          <div><strong className="text-gray-700">Owner Name:</strong> {pg.ownerName}</div>
-          <div><strong className="text-gray-700">Property Type:</strong> {pg.propertyType}</div>
+          <div className="text-gray-700"><strong className="text-gray-700">Owner Name:</strong> {pg.ownerName}</div>
+          <div className="text-gray-700"><strong className="text-gray-700">Property Type:</strong> {pg.propertyType}</div>
           {pg.propertyType === "PG" && (
             <>
-            <div><strong className="text-gray-700">PG Rooms:</strong> {pg.pgRooms || "N/A"}</div>
+            <div className="text-gray-700"><strong className="text-gray-700">PG Rooms:</strong> {pg.pgRooms || "N/A"}</div>
             </>
           )}
           {pg.propertyType === "Flat" && (
             <>
-            <div><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
+            <div className="text-gray-700"><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
             </>
           )}
-              
-              <div><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
-              <div><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
-              <div><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
-              
-            
-          <div><strong className="text-gray-700">Phone:</strong> {pg.phone}</div>
-          <div><strong className="text-gray-700">Email:</strong> {pg.email}</div>
+
+              <div className="text-gray-700"><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
+              <div className="text-gray-700"><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
+              <div className="text-gray-700"><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
+
+
+          <div className="text-gray-700"><strong className="text-gray-700">Phone:</strong> {pg.phone}</div>
+          <div className="text-gray-700"><strong className="text-gray-700">Email:</strong> {pg.email}</div>
         </div>
 
         <div className="space-y-4">
