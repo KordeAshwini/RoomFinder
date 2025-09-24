@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaUser, FaCalendarAlt, FaClipboardList } from "react-icons/fa";
+import dayjs from "dayjs";
 
 const UserProfile = () => {
   const [activeSection, setActiveSection] = useState("Profile");
@@ -405,6 +406,10 @@ const UserProfile = () => {
                           <option value="">Select Marital Status</option>
                           <option value="Single">Single</option>
                           <option value="Married">Married</option>
+                          <option value="Divorced">Divorced</option>
+                          <option value="Widowed">Widowed</option>
+                          <option value="Separated">Separated</option>
+                          <option value="Other">Other</option>
                         </select>
                       </div>
 
@@ -460,10 +465,12 @@ const UserProfile = () => {
                 </h3>
                 <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
                   {bookings.length > 0 ? (
-                    bookings.map((booking) => (
-                      <div
-                        key={booking._id}
-                        className="p-4 rounded-lg bg-orange-50 shadow-sm"
+                    bookings.map((booking) => {
+                      const isExpired = booking.paymentDueDate && dayjs().isAfter(dayjs(booking.paymentDueDate));
+                      return (
+                        <div
+                          key={booking._id}
+                          className="p-4 rounded-lg bg-orange-50 shadow-sm"
                       >
                         <p>
                           <strong>PG/Flat Name:</strong> {booking.property?.propertyName}
@@ -478,14 +485,22 @@ const UserProfile = () => {
                           <strong>Status:</strong> {booking.status}
                         </p>
                         {booking.status === "Accepted" && (
-                          <button
-                            onClick={() => handlePayNow(booking._id)} // Call the new handler
-                            className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all">
-                            Pay Now
-                          </button>
+                        <>
+                              {isExpired ? (
+                                <p className="mt-2 text-red-500 font-bold">Your payment link has expired.</p>
+                              ) : (
+                                <button
+                                  onClick={() => handlePayNow(booking._id)} // Call the new handler
+                                  className="mt-2 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-all"
+                                >
+                                  Pay Now
+                                </button>
+                              )}
+                            </>
                         )}
                       </div>
-                    ))
+                    );
+                    })
                   ) : (
                     <p className="text-gray-500">No bookings found.</p>
                   )}

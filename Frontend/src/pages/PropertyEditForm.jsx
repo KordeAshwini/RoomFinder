@@ -19,6 +19,8 @@ const PropertyEditForm = () => {
     email: "",
     genderPreference: "",
     foodPreference: "",
+    moveInDate:"",
+    typeOfTenant:"",
     rent: "",
     deposit: "",
     pgRooms: "",
@@ -35,6 +37,11 @@ const PropertyEditForm = () => {
         const res = await fetch(`http://localhost:5000/api/properties/${id}`);
         if (!res.ok) throw new Error("Failed to fetch property");
         const data = await res.json();
+
+         if (data.moveInDate) {
+        data.moveInDate = new Date(data.moveInDate).toISOString().split("T")[0];
+      }
+
         setFormData(data);
         setExistingImages(data.images);
       } catch (error) {
@@ -126,10 +133,12 @@ const PropertyEditForm = () => {
             <div className="space-y-4">
               <FormField label="Phone" name="phone" value={formData.phone} onChange={handleChange} />
               <FormField label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
+              <FormField label="Type Of Tenant" name="typeOfTenant" value={formData.typeOfTenant} onChange={handleChange}/>
               <FormField label="Gender Preference" name="genderPreference" value={formData.genderPreference} onChange={handleChange} />
               <FormField label="Food Preference" name="foodPreference" value={formData.foodPreference} onChange={handleChange} />
               <FormField label="Rent (₹)" name="rent" value={formData.rent} onChange={handleChange} />
               <FormField label="Deposit (₹)" name="deposit" value={formData.deposit} onChange={handleChange} />
+              <FormField label="Move-In-Date" name="moveInDate" value={formData.moveInDate} onChange={handleChange} type="date"  min={new Date().toISOString().split("T")[0]}  />
               <FormField label="PG Rooms" name="pgRooms" value={formData.pgRooms} onChange={handleChange} />
               <FormField label="Amenities" name="amenities" value={formData.amenities} onChange={handleChange} textarea />
             </div>

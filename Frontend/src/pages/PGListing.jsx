@@ -184,7 +184,7 @@ const PGListing = () => {
             <FilterGroup
               title="Food Options"
               category="food"
-              options={["Veg", "Non-Veg", "Both(Veg-Non-Veg)"]}
+              options={["Veg", "Non-Veg"]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}

@@ -11,26 +11,26 @@ const services = [
   {
     id: 1,
     icon: "🏠",
-    title: "Verified PG Listings",
-    description: "Browse trusted PG accommodations with verified owner details and photos.",
+    title: "PG Listings",
+    description: "Browse trusted PG accommodations with owner details and photos.",
   },
   {
     id: 2,
-    icon: "👥",
-    title: "Roommate Matching",
-    description: "Find compatible roommates based on your preferences and lifestyle.",
+    icon: "📅",
+    title: "Booking & Visit Scheduling",
+    description: "Book your room or schedule a visit to a property directly through the app.",
   },
   {
     id: 3,
     icon: "🔍",
     title: "Smart Filters",
-    description: "Filter listings by budget, location, amenities, and room type.",
+    description: "Filter listings by gender, food preference, and amenities.",
   },
   {
     id: 4,
-    icon: "📍",
-    title: "Location-Based Search",
-    description: "Easily search PGs by location, college proximity, and transport access.",
+    icon: "🔑",
+    title: "Property Management",
+    description: "For owners, easily upload, edit, and manage property listings.",
   },
 ];
 
@@ -137,7 +137,7 @@ const Home = () => {
         With 24/7 customer support, secure bookings, and tailored search options,
         we bring convenience and trust into your hands. Join thousands who’ve found their perfect stay with RoomFinder.
       </p>
-      <Link to="/about">
+      <Link to="#about">
         <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full text-lg transition">
           Learn More →
         </button>
@@ -165,7 +165,7 @@ const Home = () => {
         Whether you're new to the city or relocating for a job, we’re here to make your move smooth,
         affordable, and hassle-free.
       </p>
-      <Link to="/services">
+      <Link to="#services">
         <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full text-lg transition">
           Explore Services →
         </button>

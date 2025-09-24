@@ -128,8 +128,10 @@ const OwnerProfile = () => {
     phone: "",
     email: "",
     genderPreference: "",
+    typeOfTenant: "",
     rent: "",
     deposit: "",
+    moveInDate: "",
     pgRooms: "",
     amenities: "",
     foodPreference: "",
@@ -171,7 +173,7 @@ const OwnerProfile = () => {
       alert("Property uploaded successfully!");
       setProperties((prev) => [...prev, result.property]);
       setActiveSection("My Properties");
-      console.log(result);
+      //console.log(result);
     } catch (err) {
       console.error("Upload error:", err);
       alert("Failed to upload property");
@@ -437,6 +439,7 @@ const OwnerProfile = () => {
                         <option value="3BHK">3BHK</option>
                       </select>
                     )}
+                    {formData.typeOfTenant !== "Family" && formData.typeOfTenant !== "Single" && (
                     <input
                       type="number"
                       name="sharing"
@@ -445,6 +448,7 @@ const OwnerProfile = () => {
                       placeholder="No. of Sharing"
                       className="input-style"
                     />
+                    )}
                     <input
                       type="text"
                       name="city"
@@ -479,6 +483,7 @@ const OwnerProfile = () => {
                       placeholder="Email"
                       className="input-style"
                     />
+                    {propertyType === "PG" && (
                     <select
                       name="genderPreference"
                       value={formData.genderPreference}
@@ -490,8 +495,28 @@ const OwnerProfile = () => {
                       </option>
                       <option value="Boys">Boys</option>
                       <option value="Girls">Girls</option>
-                      <option value="All">All</option>
                     </select>
+                    )}
+                    {propertyType === "Flat" && (
+                    <select
+                      name="typeOfTenant"
+                      value={formData.typeOfTenant}
+                      onChange={handleChange}
+                      className="input-style"
+                    >
+                      <option value="" disabled hidden>
+                        Type of Tenant
+                      </option>
+                      <option value="Single">Single Working Professional</option>
+                      <option value="Family">Family/Couple</option>
+                      <option value="Student">Student</option>
+                      <option value="Friends">Friends</option>
+                      <option value="Bachelor">Bachelor</option>
+                      <option value="Female only">Female only</option>
+                      <option value="Male only">Male only</option>
+                    </select>
+                    )}
+                    
                     <select
                       name="foodPreference"
                       value={formData.foodPreference}
@@ -503,7 +528,7 @@ const OwnerProfile = () => {
                       </option>
                       <option value="Veg">Veg</option>
                       <option value="Non-Veg">Non-Veg</option>
-                      <option value="Both(Veg-Non-Veg)">Both(Veg-Non-Veg)</option>
+                      {/* <option value="Both(Veg-Non-Veg)">Both(Veg-Non-Veg)</option> */}
                     </select>
                     <input
                       type="text"
@@ -521,6 +546,22 @@ const OwnerProfile = () => {
                       placeholder="Deposit Amount"
                       className="input-style"
                     />
+                   
+            <div className="relative">
+              <input
+                type="date"
+                name="moveInDate"
+                value={formData.moveInDate}
+                onChange={handleChange}
+                required
+                className="input-style pr-10"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                📅
+              </span>
+            </div>
+
+           
                   </div>
                   {propertyType === "PG" && (
                     <div>

@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { X } from "lucide-react";
 
 
-const ScheduleVisitModal = ({ pgName, pgId, gender, onClose }) => {
+const ScheduleVisitModal = ({ pgName, pgId, gender, typeOfTenant, onClose }) => {
   const [user, setUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
@@ -89,7 +89,7 @@ const ScheduleVisitModal = ({ pgName, pgId, gender, onClose }) => {
         {/* Title */}
         <h2 className="text-xl font-bold text-orange-600 mb-2">Schedule a Visit</h2>
         <p className="text-gray-700 mb-1">PG: <strong>{pgName}</strong></p>
-        <p className="text-gray-700 mb-4">Preferred for: <strong>{gender}</strong></p>
+        <p className="text-gray-700 mb-4">Preferred for: <strong>{gender}{typeOfTenant}</strong></p>
 
         {/* Days */}
         <div className="flex gap-3 overflow-x-auto pb-4">

@@ -89,9 +89,25 @@ const PGDetails = () => {
             <div className="text-gray-700"><strong className="text-gray-700">Flat Type:</strong> {pg.flatType || "N/A"}</div>
             </>
           )}
-
+          {pg.typeOfTenant !== "Family" && pg.typeOfTenant !== "Single" && (
+            <>
               <div className="text-gray-700"><strong className="text-gray-700">Sharing:</strong> {pg.sharing || "N/A"}</div>
+             </>
+          )}
+           {pg.typeOfTenant !== "Family" && (
               <div className="text-gray-700"><strong className="text-gray-700">Gender Preference:</strong> {pg.genderPreference || "N/A"}</div>
+            )}
+
+
+              {pg.propertyType === "Flat" && (
+              <div className="text-gray-700"><strong className="text-gray-700">Type of Tenant:</strong> {pg.typeOfTenant || "N/A"}</div>
+            )}
+              <div className="text-gray-700">
+  <strong className="text-gray-700">Move-in Date:</strong>{" "}
+  {pg.moveInDate
+    ? new Date(pg.moveInDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+    : "N/A"}
+</div>
               <div className="text-gray-700"><strong className="text-gray-700">Food Preference:</strong> {pg.foodPreference || "N/A"}</div>
 
 
@@ -124,9 +140,13 @@ const PGDetails = () => {
         </button>
         {showModal && (
           <BookingFormModal
-              pgId={pg._id}
+            pgId={pg._id}
             pgName={pg.propertyName}
             gender={pg.genderPreference}
+            propertyType={pg.propertyType}
+            sharing={pg.sharing}
+            moveInDate={pg.moveInDate}
+            typeOfTenant={pg.typeOfTenant}
             onClose={() => setShowModal(false)}
           />
         )}
@@ -143,6 +163,7 @@ const PGDetails = () => {
             pgId={pg._id}
             pgName={pg.propertyName}
             gender={pg.genderPreference}
+            typeOfTenant={pg.typeOfTenant}
             onClose={() => setShowVisitModal(false)}
           />
         )}
