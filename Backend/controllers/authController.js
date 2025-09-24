@@ -105,6 +105,10 @@ exports.signup = async (req, res) => {
     if (!phoneRegex.test(phone)) {
       return res.status(400).json({ message: "Phone number must be 10 digits." });
     }
+    // ✅ NEW: Prevent registration with a number of all zeros
+    if (phone === "0000000000") {
+      return res.status(400).json({ message: "Please enter a valid phone number." });
+    }
 
     // 5. Role validation
     const allowedRoles = ["Tenant", "Owner", "Admin"];

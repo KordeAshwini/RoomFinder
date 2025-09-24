@@ -5,17 +5,33 @@ const propertySchema = new mongoose.Schema({
   propertyName: { type: String, required: true },
   ownerName: { type: String, required: true },
   propertyType: { type: String, required: true },
-  flatType: { type: String},
-  sharing: { type: Number, required: true },
+  flatType: { type: String, required: function() {
+      return this.propertyType === 'Flat';
+    }},
+  sharing: { type: Number, required: function() {
+      return this.propertyType === 'PG';
+    }},
   city: { type: String, required: true },
   address: { type: String, required: true },
   phone: { type: String, required: true },
   email: { type: String, required: true },
-  genderPreference: { type: String, required: true },
+  genderPreference: { type: String, required: function() {
+      return this.propertyType === 'PG';
+    }},
+  typeOfTenant: { type: String, required: function() {
+      return this.propertyType === 'Flat';
+    }},
   foodPreference: { type: String, required: true },
   rent: { type: String, required: true },
   deposit: { type: String, required: true },
-  pgRooms: { type: String, required: true },
+  // pgRooms: { type: String },
+  moveInDate: { type: Date, required: true },
+  pgRooms: {
+    type: String,
+    required: function() {
+      return this.propertyType === 'PG';
+    }
+  },
   amenities: { type: String, required: true },
 // image: { type: String }, // will store file path
   images: [{ type: String, required: true }], // array to store multiple image file paths

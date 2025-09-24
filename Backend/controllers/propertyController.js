@@ -2,6 +2,60 @@ const Property = require("../models/Property");
 const fs = require("fs");
 const path = require("path");
 
+// exports.createProperty = async (req, res) => {
+//   try {
+//     const {
+//       ownerId,
+//       propertyName,
+//       ownerName,
+//       propertyType,
+//       flatType,
+//       sharing,
+//       city,
+//       address,
+//       phone,
+//       email,
+//       genderPreference,
+//       foodPreference,
+//       rent,
+//       deposit,
+//       pgRooms,
+//       amenities,
+//     } = req.body;
+
+//     const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
+
+//     const newProperty = new Property({
+//       ownerId,
+//       propertyName,
+//       ownerName,
+//       propertyType,
+//       flatType,
+//       sharing,
+//       city,
+//       address,
+//       phone,
+//       email,
+//       genderPreference,
+//       foodPreference,
+//       rent,
+//       deposit,
+//       pgRooms,
+//       amenities,
+//       images,
+//     });
+
+//     await newProperty.save();
+
+//     res.status(201).json({ message: "Property uploaded successfully!", property: newProperty });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
+
+
+
 exports.createProperty = async (req, res) => {
   try {
     const {
@@ -16,14 +70,36 @@ exports.createProperty = async (req, res) => {
       phone,
       email,
       genderPreference,
+      typeOfTenant,
       foodPreference,
       rent,
       deposit,
+      moveInDate,
       pgRooms,
       amenities,
     } = req.body;
 
-    const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
+    // Separate validation for PG and Flat properties
+    if (propertyType === "PG" && !pgRooms) {
+      return res.status(400).json({ error: "At least one PG room number is required" });
+    }
+
+    if (propertyType === "Flat" && !flatType) {
+      return res.status(400).json({ error: "Flat type is required" });
+    }
+
+    // Convert amenities string to an array if it exists
+    const amenitiesArray = amenities ? amenities.split(",").map((a) => a.trim()) : [];
+
+    // All properties must have at least one amenity
+    if (amenitiesArray.length === 0) {
+      return res.status(400).json({ error: "At least one amenity is required" });
+    }
+
+    const images = req.files ? req.files.map((file) => "uploads/" + file.filename) : [];
+    if (images.length === 0) {
+      return res.status(400).json({ error: "At least one property image is required" });
+    }
 
     const newProperty = new Property({
       ownerId,
@@ -37,11 +113,13 @@ exports.createProperty = async (req, res) => {
       phone,
       email,
       genderPreference,
+      typeOfTenant,
       foodPreference,
       rent,
       deposit,
+      moveInDate,
       pgRooms,
-      amenities,
+      amenities: amenitiesArray.join(", "), // Save as a comma-separated string
       images,
     });
 
@@ -49,10 +127,120 @@ exports.createProperty = async (req, res) => {
 
     res.status(201).json({ message: "Property uploaded successfully!", property: newProperty });
   } catch (err) {
-    console.error(err);
+    console.error("Error creating property:", err);
     res.status(500).json({ error: "Server error" });
   }
 };
+
+// exports.createProperty = async (req, res) => {
+//   try {
+//     const {
+//       ownerId,
+//       propertyName,
+//       ownerName,
+//       propertyType,
+//       flatType,
+//       sharing,
+//       city,
+//       address,
+//       phone,
+//       email,
+//       genderPreference,
+//       foodPreference,
+//       rent,
+//       deposit,
+//       pgRooms,
+//       amenities,
+//     } = req.body;
+
+//     // ✅ Validation checks
+//     if (!ownerId) {
+//       return res.status(400).json({ error: "Owner ID is required" });
+//     }
+//     if (!propertyName || propertyName.trim().length < 3) {
+//       return res.status(400).json({ error: "Property name must be at least 3 characters long" });
+//     }
+//     if (!ownerName || ownerName.trim().length < 3) {
+//       return res.status(400).json({ error: "Owner name must be at least 3 characters long" });
+//     }
+//     if (!propertyType) {
+//       return res.status(400).json({ error: "Property type is required" });
+//     }
+//     if (propertyType === "Flat"&&!flatType) {
+//       return res.status(400).json({ error: "Flat type is required" });
+//     }
+//     if (!sharing || isNaN(sharing) || sharing <= 0) {
+//       return res.status(400).json({ error: "Sharing must be a valid positive number" });
+//     }
+//     if (!city || city.trim().length < 2) {
+//       return res.status(400).json({ error: "City name is required" });
+//     }
+//     if (!address || address.trim().length < 5) {
+//       return res.status(400).json({ error: "Address must be at least 5 characters long" });
+//     }
+//     if (!phone || !/^[0-9]{10}$/.test(phone)) {
+//       return res.status(400).json({ error: "Valid 10-digit phone number is required" });
+//     }
+//     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+//       return res.status(400).json({ error: "Valid email is required" });
+//     }
+//     if (!genderPreference) {
+//       return res.status(400).json({ error: "Gender preference is required" });
+//     }
+//     if (!foodPreference) {
+//       return res.status(400).json({ error: "Food preference is required" });
+//     }
+//     if (!rent || isNaN(rent) || rent <= 0) {
+//       return res.status(400).json({ error: "Valid rent amount is required" });
+//     }
+//     if (!deposit || isNaN(deposit) || deposit < 0) {
+//       return res.status(400).json({ error: "Valid deposit amount is required" });
+//     }
+//      if (propertyType === "PG" && !pgRooms) {
+//       return res.status(400).json({ error: "At least one PG room number is required" });
+//     }
+//     if (!amenities || !Array.isArray(amenities) || amenities.length === 0) {
+//       return res.status(400).json({ error: "At least one amenity is required" });
+//     }
+
+//     const images = req.files ? req.files.map(file => "uploads/" + file.filename) : [];
+//     if (images.length === 0) {
+//       return res.status(400).json({ error: "At least one property image is required" });
+//     }
+
+//     // ✅ Create property if all validations pass
+//     const newProperty = new Property({
+//       ownerId,
+//       propertyName,
+//       ownerName,
+//       propertyType,
+//       flatType,
+//       sharing,
+//       city,
+//       address,
+//       phone,
+//       email,
+//       genderPreference,
+//       foodPreference,
+//       rent,
+//       deposit,
+//       pgRooms,
+//       amenities,
+//       images,
+//     });
+
+//     await newProperty.save();
+
+//     res.status(201).json({
+//       message: "Property uploaded successfully!",
+//       property: newProperty,
+//     });
+//   } catch (err) {
+//     console.error("Error creating property:", err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// };
+
 
 exports.getPropertiesByOwnerId = async (req, res) => {
   try {
@@ -94,6 +282,11 @@ exports.updateProperty = async (req, res) => {
 
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
+    }
+
+     // ✅ Add validation for 'sharing' and other numeric fields
+    if (updatedData.sharing === "null" || updatedData.sharing === "") {
+      delete updatedData.sharing;
     }
 
     // Handle image updates

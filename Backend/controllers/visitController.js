@@ -34,8 +34,8 @@ exports.bookVisit = async (req, res) => {
 
       // 2️⃣ Count total visits already booked by this user for same PG
     const visitCount = await Visit.countDocuments({ userId, propertyId });
-    if (visitCount >= 2) {
-      return res.status(400).json({ message: "You can only book up to 2 visits for this PG" });
+    if (visitCount >= 1) {
+      return res.status(400).json({ message: "You can only book up to 1 visit for this PG" });
     }
 
     // 🔹 Use ownerId from property

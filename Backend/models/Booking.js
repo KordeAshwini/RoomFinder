@@ -8,8 +8,11 @@ const bookingSchema = new mongoose.Schema({
   stayDuration: { type: String, required: true },
   sharingPreference: { type: String, required: true },
   message: { type: String },
+  gender: { type: String },
+  typeOfTenant: { type: String },
 
   status: { type: String, enum: ["Pending", "Accepted", "Rejected","Confirmed"], default: "Pending" },
+  paymentDueDate: { type: Date }, // New field for payment expiration
   // transactionId: { type: String }, // New field for Stripe transaction ID
   createdAt: { type: Date, default: Date.now },
 });
