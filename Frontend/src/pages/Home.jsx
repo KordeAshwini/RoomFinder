@@ -130,7 +130,7 @@ const Home = () => {
       <p className="text-gray-700 text-lg mb-6 leading-relaxed">
         At RoomFinder, we aim to make your PG or hostel search experience fast,
         simple, and stress-free. Whether you're a student, fresher, or working professional,
-        we provide verified listings, modern amenities, and roommate-matching features
+        we provide verified listings, and modern amenities features
         — all from the comfort of your screen.
       </p>
       <p className="text-gray-700 text-lg mb-6 leading-relaxed">
@@ -158,7 +158,7 @@ const Home = () => {
       <h2 className="text-4xl font-bold text-orange-600 mb-4">Why Choose Us?</h2>
       <p className="text-gray-700 text-lg mb-6 leading-relaxed">
         RoomFinder is more than a listing site — it's your housing partner. Our platform offers
-        personalized recommendations, roommate compatibility tools, and verified property photos
+        personalized recommendations, and verified property photos
         so you can make informed decisions.
       </p>
       <p className="text-gray-700 text-lg mb-6 leading-relaxed">
@@ -209,10 +209,10 @@ const Home = () => {
               name: 'Amit Shah',
               review: 'I found my PG within a day. The RoomFinder platform is very helpful!',
             },
-            {
-              name: 'Sneha Kulkarni',
-              review: 'Loved the roommate matching feature. I now live with someone who shares my hobbies!',
-            },
+            // {
+            //   name: 'Sneha Kulkarni',
+            //   review: 'Loved the roommate matching feature. I now live with someone who shares my hobbies!',
+            // },
             {
               name: 'Rohan Verma',
               review: 'Booking a flat online was super easy. Great experience!',

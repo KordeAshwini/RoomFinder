@@ -7,6 +7,7 @@ const PGListing = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     gender: [],
+    typeOfTenant: [],
     accommodation: [],
     facility: [],
     food: [],
@@ -67,6 +68,7 @@ const PGListing = () => {
     setFilters({
       gender: [],
       accommodation: [],
+      typeOfTenant: [],
       facility: [],
       food: [],
       bathroom: [],
@@ -78,7 +80,8 @@ const PGListing = () => {
   const filteredPGs = pgs.filter((pg) => {
     return (
       (filters.gender.length === 0 || filters.gender.includes(pg.genderPreference)) &&
-      (filters.accommodation.length === 0 || filters.accommodation.includes(pg.propertyType)) &&
+      (filters.accommodation.length === 0 || filters.accommodation.includes(pg.propertyType)) && 
+      (filters.typeOfTenant.length === 0 || filters.typeOfTenant.includes(pg.typeOfTenant)) &&
       (filters.food.length === 0 || filters.food.includes(pg.foodPreference)) &&
       (filters.amenities.length === 0 ||
         filters.amenities.every((item) => pg.amenities?.includes(item)))
@@ -167,6 +170,15 @@ const PGListing = () => {
               title="Gender"
               category="gender"
               options={["Boys", "Girls", "All"]}
+              filters={filters}
+              onCheck={handleCheckbox}
+              onClearCategory={clearCategory}
+            />
+
+            <FilterGroup
+              title="Type of Tenant"
+              category="typeOfTenant"
+              options={["Student", "Single", "Family",]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}

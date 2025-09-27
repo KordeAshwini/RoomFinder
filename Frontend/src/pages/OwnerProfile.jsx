@@ -483,7 +483,7 @@ const OwnerProfile = () => {
                       placeholder="Email"
                       className="input-style"
                     />
-                    {propertyType === "PG" && (
+                    {propertyType === "PG" || formData.typeOfTenant !== "Family" && (
                     <select
                       name="genderPreference"
                       value={formData.genderPreference}
@@ -493,8 +493,8 @@ const OwnerProfile = () => {
                       <option value="" disabled hidden>
                         Gender Preference
                       </option>
-                      <option value="Boys">Boys</option>
-                      <option value="Girls">Girls</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
                     </select>
                     )}
                     {propertyType === "Flat" && (
@@ -512,8 +512,6 @@ const OwnerProfile = () => {
                       <option value="Student">Student</option>
                       <option value="Friends">Friends</option>
                       <option value="Bachelor">Bachelor</option>
-                      <option value="Female only">Female only</option>
-                      <option value="Male only">Male only</option>
                     </select>
                     )}
                     

@@ -10,7 +10,7 @@ const Footer = () => {
         <div> 
           <h2 className="text-3xl font-bold text-orange-500 hover:scale-105 transition duration-300">RoomFinder</h2>
           <p className="text-sm">
-            Helping students and professionals find their ideal PGs and roommates with comfort and convenience.
+            Helping students and professionals find their ideal PGs with comfort and convenience.
           </p>
         </div>
 
@@ -19,9 +19,9 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-sm">
             <li><a href="/" className="hover:text-blue-600 transition">Home</a></li>
-            <li><a href="/about" className="hover:text-blue-600 transition">About Us</a></li>
+            {/* <li><a href="/about" className="hover:text-blue-600 transition">About Us</a></li> */}
             <li><a href="/pg" className="hover:text-blue-600 transition">Search PG</a></li>
-            <li><a href="/contact" className="hover:text-blue-600 transition">Contact Us</a></li>
+            {/* <li><a href="/contact" className="hover:text-blue-600 transition">Contact Us</a></li> */}
           </ul>
         </div>
 
