@@ -183,21 +183,62 @@ const updateBookingStatus = async (req, res) => {
 
     if (status === 'Accepted') {
       const paymentDueDate = new Date();
-      paymentDueDate.setDate(paymentDueDate.getDate() + 1);
+      paymentDueDate.setDate(paymentDueDate.getDate() + 2);
+      
+      // 🔹 Expire in 10 minutes
+      //paymentDueDate.setMinutes(paymentDueDate.getMinutes() + 10);
+
       booking.paymentDueDate = paymentDueDate;
     } else {
       booking.paymentDueDate = undefined; // Clear the due date if not accepted
     }
 
 
-    await booking.save();
+    await booking.save();   
+    
+    if (paymentDueDate < new Date()) {
+      await sendEmail(
+        booking.user.email,
+        `Booking Expired`,
+        `Hi ${booking.user.name},\n\nYour booking for ${booking.property.propertyName} has expired due to non-payment within the due date.\n\nFeel free to explore other options on our platform. Thank you!`
+      );
+    }
+    else{
+      await sendEmail(
+        booking.user.email,
+        `Hurry Up! Payment Due Soon`,
+        `Hi ${booking.user.name},\n\nThis is a reminder that your payment for the booking at ${booking.property.propertyName} is due by ${booking.paymentDueDate.toDateString()}.\n\nPlease make the payment to confirm your booking and avoid expiration.\n\nThank you!`
+      );
+    }
+
+    if (status === 'Accepted') {
 
     // Notify user
     await sendEmail(
       booking.user.email,
       `Booking ${status}`,
-      `Hi ${booking.user.name},\n\nYour booking for ${booking.property.propertyName} has been ${status} by the owner.\n\nThank you!`
+      `Hi ${booking.user.name},\n\nYour booking for ${booking.property.propertyName} has been ${status} by the owner.\n\nThank you!
+      Your payment is due by ${booking.paymentDueDate.toDateString()}. Please make the payment to confirm your booking.`  
     );
+  }
+  else if (status === 'Rejected') {
+    // Notify user
+    await sendEmail(
+      booking.user.email,
+      `Booking ${status}`,
+      `Hi ${booking.user.name},\n\nWe regret to inform you that your booking for ${booking.property.propertyName} has been ${status} by the owner.\n\nFeel free to explore other options on our platform. Thank you!`
+    );
+  }
+  else if (status === 'Confirmed') {
+    // Notify user
+    await sendEmail(
+      booking.user.email,
+      `Booking ${status}`,
+      `Hi ${booking.user.name},\n\nYour booking for ${booking.property.propertyName} has been ${status}.\n\nThank you!`
+    );
+  }
+  
+
 
     res.json({ success: true, message: `Booking ${status}`, booking });
   } catch (err) {
