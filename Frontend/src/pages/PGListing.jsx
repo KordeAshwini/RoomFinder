@@ -125,7 +125,7 @@ const PGListing = () => {
                   <p className="text-sm text-gray-500 mb-1">{pg.city}</p>
                   <p className="text-lg font-semibold text-orange-600 mb-1">₹{pg.rent}/month</p>
                   <p className="text-sm text-gray-600 mb-1">
-                    {pg.genderPreference} • {pg.propertyType}  • {pg.foodPreference || ""} • {pg.flatType || ""}
+                    {pg.genderPreference} • {pg.propertyType}  • {pg.foodPreference || ""} • {pg.flatType || ""} • {pg.sharing ? `${pg.sharing}-Sharing` : "No Sharing"} • {pg.typeOfTenant}
                   </p>
                   <p className="text-sm text-gray-600 mt-2 flex-1">
                     <span className="font-medium">Amenities:</span>{" "}
@@ -169,7 +169,7 @@ const PGListing = () => {
             <FilterGroup
               title="Gender"
               category="gender"
-              options={["Boys", "Girls", "All"]}
+              options={["Boys", "Girls",]}
               filters={filters}
               onCheck={handleCheckbox}
               onClearCategory={clearCategory}

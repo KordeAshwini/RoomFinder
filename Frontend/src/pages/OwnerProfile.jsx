@@ -165,8 +165,8 @@ const OwnerProfile = () => {
       });
       if (!res.ok) {
         const errData = await res.json();
-        console.error("Server error:", errData);
-        alert(errData.message || "Failed to upload property");
+        //console.error("Server error:", errData);
+        alert(errData.error || "Failed to upload property");
         return;
       }
       const result = await res.json();
@@ -483,7 +483,7 @@ const OwnerProfile = () => {
                       placeholder="Email"
                       className="input-style"
                     />
-                    {propertyType === "PG" || formData.typeOfTenant !== "Family" && (
+                    {formData.typeOfTenant !== "Family" && (
                     <select
                       name="genderPreference"
                       value={formData.genderPreference}
@@ -493,8 +493,8 @@ const OwnerProfile = () => {
                       <option value="" disabled hidden>
                         Gender Preference
                       </option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
+                      <option value="Boys">Boys</option>
+                      <option value="Girls">Girls</option>
                     </select>
                     )}
                     {propertyType === "Flat" && (
@@ -545,15 +545,21 @@ const OwnerProfile = () => {
                       className="input-style"
                     />
                    
+                  
             <div className="relative">
-              <input
-                type="date"
-                name="moveInDate"
-                value={formData.moveInDate}
-                onChange={handleChange}
-                required
-                className="input-style pr-10"
-              />
+              {/* <label htmlFor="moveInDate">Move In date</label>  */}
+               <input
+    type="text"
+    name="moveInDate"
+    value={formData.moveInDate}
+    onFocus={(e) => (e.target.type = "date")}
+    onBlur={(e) => !e.target.value && (e.target.type = "text")}
+    placeholder="Select Move In Date"
+    onChange={handleChange}
+    required
+    className="input-style pr-10"
+  />
+              
               <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 📅
               </span>
