@@ -4,56 +4,6 @@ const Property = require("../models/Property");
 const Payment = require("../models/Payment");
 const sendEmail = require("../utils/sendEmail");
 
-// ✅ Create new booking
-// const createBooking = async (req, res) => {
-//   try {
-//     const { userId, propertyId, moveInDate, stayDuration, sharingPreference, message } = req.body;
-
-//     // 🔍 Validate user & property
-//     const user = await User.findById(userId);
-//     const property = await Property.findById(propertyId).populate("ownerId"); // ✅ now populates ownerId
-//     if (!user || !property) {
-//       return res.status(404).json({ success: false, error: "User or Property not found" });
-//     }
-
-//      // 📌 New check: Prevent more than 2 bookings for the same property
-//     const existingBookingsCount = await Booking.countDocuments({ user: userId, property: propertyId });
-//     if (existingBookingsCount >= 2) {
-//       return res.status(400).json({ success: false, error: "You can only book this PG up to 2 times." });
-//     }
-
-
-//     // ✅ Save booking
-//     const booking = new Booking({
-//       user: userId,
-//       property: propertyId,
-//       moveInDate,
-//       stayDuration,
-//       sharingPreference,
-//       message,
-//     });
-//     await booking.save();
-
-//     // ✅ Email notifications
-//     await sendEmail(
-//       user.email,
-//       "Booking Request Submitted",
-//       `Hi ${user.name},\n\nYour booking request for ${property.propertyName} has been submitted.\nStatus: Pending.\n\nWe will notify you once the owner responds.`
-//     );
-
-//     await sendEmail(
-//       property.ownerId.email, // ✅ from Users collection
-//       "New Booking Request",
-//       `Hi ${property.ownerId.name},\n\nYou have a new booking request for ${property.propertyName} from ${user.name} (${user.email}).\n\nPlease log in to review the request.`
-//     );
-
-//     res.json({ success: true, message: "Booking created & emails sent", booking });
-
-//   } catch (err) {
-//     console.error("❌ Booking Error:", err);
-//     res.status(500).json({ success: false, error: "Server Error" });
-//   }
-// };
 
 // Create new booking with validations
 const createBooking = async (req, res) => {
