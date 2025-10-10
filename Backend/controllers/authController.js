@@ -82,10 +82,10 @@ async function saveAndSendOtp(email) {
 // POST /api/auth/signup
 exports.signup = async (req, res) => {
   try {
-    const { name, email, phone, role, password } = req.body;
+    const { name, email, phone, role, password, confirmPassword } = req.body;
 
     // 1. Basic empty check
-    if (!name || !email || !phone || !password || !role) {
+    if (!name || !email || !phone || !password || !role || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -94,6 +94,10 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: "Name must be at least 2 characters long." });
     }
 
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match." });
+    }
     // 3. Email validation
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
@@ -101,7 +105,8 @@ exports.signup = async (req, res) => {
     }
 
     // 4. Phone validation (10–15 digits, numbers only)
-     const phoneRegex = /^\d{10}$/;
+     //const phoneRegex = /^\d{10}$/;
+     const phoneRegex = /^[0-9]{10}$/; 
     if (!phoneRegex.test(phone)) {
       return res.status(400).json({ message: "Phone number must be 10 digits." });
     }
@@ -117,20 +122,35 @@ exports.signup = async (req, res) => {
     }
 
     // 6. Password strength check
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long." });
-    }
-    // const strongPassRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$/;
-    // if (!strongPassRegex.test(password)) {
-    //   return res.status(400).json({ 
-    //     message: "Password must include at least one letter and one number." 
-    //   });
+    // if (password.length < 6) {
+    //   return res.status(400).json({ message: "Password must be at least 6 characters long." });
     // }
+    const strongPassRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+if (!strongPassRegex.test(password)) {
+  return res.status(400).json({ 
+    message: "Password must be at least 6 characters long and include at least one letter, one number, and one special character (@$!%*?&)." 
+  });
+}
+
 
     // 7. Check if email already exists
-    if (await User.findOne({ email: email.toLowerCase() })) {
-      return res.status(409).json({ message: "Email already registered." });
+    // if (await User.findOne({ email: email.toLowerCase() })) {
+    //   return res.status(409).json({ message: "Email already registered." });
+    // }
+
+      // 7. Check if email already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+
+    if (existingUser) {
+      if (existingUser.isVerified) {
+        // Email already registered and verified
+        return res.status(409).json({ message: "Email already registered." });
+      } else {
+        // Email exists but not verified, delete old entry
+        await User.deleteOne({ _id: existingUser._id });
+      }
     }
+
 
     // 8. Hash password & save user
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -274,6 +294,13 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
+     // 🟡 5. Check if email is verified
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        message: "Your email is not verified. Please verify your email first. Please sign up again for verification.",
+      });
+    }
+
     // 5. Compare password
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
@@ -374,9 +401,16 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-     if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters long" });
-    }
+    //  if (password.length < 6) {
+    //   return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    // }
+    const strongPassRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+if (!strongPassRegex.test(password)) {
+  return res.status(400).json({ 
+    message: "Password must be at least 6 characters long and include at least one letter, one number, and one special character (@$!%*?&)." 
+  });
+}
+
 
     // 2. Find latest OTP for this email
     const otpDoc = await Otp.findOne({ email: email.toLowerCase() })
