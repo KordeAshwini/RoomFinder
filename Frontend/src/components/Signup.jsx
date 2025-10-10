@@ -25,6 +25,7 @@ const Signup = ({ onClose, onSwitchToSignin, defaultRole }) => {
       phone: formData.get("phone"),
       role: formData.get("role"),
       password: formData.get("password"),
+      confirmPassword: formData.get("confirmPassword"),
     };
 
     try {
@@ -162,6 +163,7 @@ const Signup = ({ onClose, onSwitchToSignin, defaultRole }) => {
                   </label>
                   <input
                     type="password"
+                    name="confirmPassword"
                     required
                     placeholder="••••••••"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
