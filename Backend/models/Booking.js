@@ -6,7 +6,7 @@ const bookingSchema = new mongoose.Schema({
 
   moveInDate: { type: Date, required: true },
   stayDuration: { type: String, required: true },
-  sharingPreference: { type: String, required: true },
+  sharingPreference: { type: String },
   message: { type: String },
   gender: { type: String },
   typeOfTenant: { type: String },
