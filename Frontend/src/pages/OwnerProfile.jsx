@@ -88,8 +88,11 @@ const OwnerProfile = () => {
         setBookings((prev) =>
           prev.map((b) => (b._id === bookingId ? { ...b, status: newStatus } : b))
         );
-        if (newStatus === "Accepted") setBookingTab("Accepted");
-        alert(`Booking ${newStatus} successfully!`);
+         // ✅ 2. Notify the user
+     // alert(`Booking ${newStatus} successfully!`);
+        if (newStatus === "Accepted") setTimeout(() => {
+          setBookingTab("Accepted");
+        }, 30); // short delay ensures state sync
       } else {
         alert(data.message || "Failed to update status");
       }

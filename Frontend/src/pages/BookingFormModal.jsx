@@ -198,7 +198,48 @@ const BookingFormModal = ({ onClose, pgId, pgName, gender, propertyType, sharing
               </svg>
             </div>
           </div> */}
-          <div className="relative">
+
+        <div className="relative">
+  <label className="text-sm text-gray-700">Move-in Date</label>
+  <input
+    type="date"
+    name="moveInDate"
+    value={formData.moveInDate}
+    onChange={handleChange}
+    required
+    min={
+      (() => {
+        const today = new Date();
+        const ownerDate = new Date(moveInDate);
+        // If owner date is before today → start from today
+        return (ownerDate < today ? today : ownerDate)
+          .toISOString()
+          .split("T")[0];
+      })()
+    }
+    className="w-full bg-gray-100 border p-2 rounded-md text-sm text-gray-700"
+  />
+  <div className="absolute right-3 bottom-2.5 text-black pointer-events-none">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 
+          00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+      />
+    </svg>
+  </div>
+</div>
+
+
+          {/* <div className="relative">
   <label className="text-sm text-gray-700">Move-in Date</label>
   <input
     type="date"
@@ -226,7 +267,7 @@ const BookingFormModal = ({ onClose, pgId, pgName, gender, propertyType, sharing
       />
     </svg>
   </div>
-</div>
+</div> */}
 
 
 
